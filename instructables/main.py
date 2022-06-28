@@ -64,14 +64,17 @@ def parse_data(database, parent_url, dir, category = None, overwrite = False, st
 
     for category, projects in database.items():
         category_dir = f"{dir}/{category}"
-        _check_overwrite(category_dir, overwrite)
+        # _check_overwrite(category_dir, overwrite)
 
         for name, link in projects.items():
             project_dir = f"{category_dir}/{category}_{i}"; i += 1
-            _check_overwrite(project_dir, overwrite)
+            # _check_overwrite(project_dir, overwrite)
 
-            content = scrape(session, f"{parent_url}{link}")
-            with open(f"{project_dir}/website.html", 'wb') as dump: dump.write(content.encode('utf-8')); dump.close()
+            if os.path.exists(f"{project_dir}/website.html"): 
+                content = scrape(session, f"{parent_url}{link}")
+                with open(f"{project_dir}/website.html", 'wb') as dump: dump.write(content.encode('utf-8')); dump.close()
+            else:
+                content = soup(open(f"{project_dir}/website.html", 'r').read())
 
             info = extract_info(content)
             images = info['images']
@@ -102,9 +105,11 @@ def _check_overwrite(dir, overwrite = False):
             overwrite = input(f"Directory {dir} exists! Do you want to overwrite? (y/n): ")
             overwrite = True if overwrite == "y" else False
 
-        if overwrite: shutil.rmtree(dir)
+        if overwrite: 
+            shutil.rmtree(dir)
+            os.mkdir(dir)
     
-    os.mkdir(dir)
+    else: os.mkdir(dir)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -118,6 +123,6 @@ if __name__ == '__main__':
     parser.add_argument('--database_dir', type=str, default=f'{current_dir}/dataset')
     
     args = parser.parse_args()
-    _check_overwrite(args.dir)
+    # _check_overwrite(args.dir)
     database = read_dataset(args.database_dir)
     parse_data(database, instructables_url, args.dir, category=args.category, overwrite=args.overwrite, store_content=args.store_content, store_images=args.store_images, max_iters=args.max_iters)
