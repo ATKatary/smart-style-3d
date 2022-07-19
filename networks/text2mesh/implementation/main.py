@@ -177,6 +177,8 @@ def run_branched(args):
         sampled_mesh = mesh
 
         update_mesh(mlp, network_input, prior_color, sampled_mesh, vertices)
+        
+
         rendered_images, elev, azim = render.render_front_views(sampled_mesh, num_views=args.n_views,
                                                                 show=args.show,
                                                                 center_azim=args.frontview_center[0],
@@ -190,7 +192,14 @@ def run_branched(args):
             encoded_renders = clip_model.encode_image(clip_image)
             if not args.no_prompt:
                 loss = torch.mean(torch.cosine_similarity(encoded_renders, encoded_text))
-
+            else:
+                if encoded_image.shape[0] > 1:
+                    loss = torch.cosine_similarity(torch.mean(encoded_renders, dim=0),
+                                                        torch.mean(encoded_image, dim=0), dim=0)
+                else:
+                    loss = torch.cosine_similarity(torch.mean(encoded_renders, dim=0, keepdim=True),
+                                                        encoded_image)
+                                                        
         # Check augmentation steps
         if args.cropsteps != 0 and cropupdate != 0 and i != 0 and i % args.cropsteps == 0:
             curcrop += cropupdate
