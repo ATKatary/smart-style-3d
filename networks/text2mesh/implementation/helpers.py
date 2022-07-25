@@ -1,3 +1,6 @@
+import os
+import requests
+import mimetypes
 from os import listdir
 from .utils import check_mesh
 import matplotlib.image as mpimg
@@ -57,3 +60,36 @@ def display(output_dir, obj, n_iter):
     plot[0].imshow(before_image)
     plot[1].imshow(after_image)
     plt.show()
+
+def download(home_dir, url = None, stream = False, fn = None):
+    """
+    Downloads the content of a url to the specified home_dir
+
+    Inputs
+        :url: <str> to the location contianing the content
+        :home_dir: <str> the home directory containing subdirectories to write to
+        :fn: the name to give the file when saved
+    
+    Outputs
+        :returns: the path to the saved file containing the content
+    """
+    if url is None:
+        url = input("Image url: ")
+        
+    if fn is None:
+        fn = url.split('/')[-1]
+
+    r = requests.get(url, stream=stream)
+    if r.status_code == 200:
+        content_type = r.headers['content-type']
+        ext = mimetypes.guess_extension(content_type)
+        with open(f"{home_dir}/outputs/{fn}.{ext}", 'wb') as output_file:
+            if stream:
+                for chunk in r.iter_content(chunk_size=1024**2): 
+                    if chunk: output_file.write(chunk)
+            else:
+                output_file.write(r.content)
+                print("{} downloaded: {:.2f} KB".format(fn, len(r.content) / 1024.0))
+            return f"{home_dir}/outputs/{fn}.{ext}"
+    else:
+        raise ValueError(f"url not found: {url}")
