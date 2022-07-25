@@ -50,7 +50,7 @@ def check_mesh(mesh_path, text2mesh_path):
                 text2mesh.write(updated_text2mesh + "\n# Edited line 29")
                 text2mesh.close()
 
-        if num_vertices > num_normals: raise ValueError(f"\033[91mFail[Obj Deprecated]: Number of verticies ({num_vertices}) > the number of normals ({num_normals})\033[0m")
+        elif num_vertices > num_normals: raise ValueError(f"\033[91mFail[Obj Deprecated]: Number of verticies ({num_vertices}) > the number of normals ({num_normals})\033[0m")
         else: print(f"\033[92mSuccess[{mesh_path} is goo!]: Number of verticies ({num_vertices}) == the number of normals ({num_normals})\033[0m")
 
 if __name__ == '__main__':
