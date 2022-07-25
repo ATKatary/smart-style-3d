@@ -83,13 +83,13 @@ def download(home_dir, url = None, stream = False, fn = None):
     if r.status_code == 200:
         content_type = r.headers['content-type']
         ext = mimetypes.guess_extension(content_type)
-        with open(f"{home_dir}/outputs/{fn}.{ext}", 'wb') as output_file:
+        with open(f"{home_dir}/outputs/{fn}{ext}", 'wb') as output_file:
             if stream:
                 for chunk in r.iter_content(chunk_size=1024**2): 
                     if chunk: output_file.write(chunk)
             else:
                 output_file.write(r.content)
                 print("{} downloaded: {:.2f} KB".format(fn, len(r.content) / 1024.0))
-            return f"{home_dir}/outputs/{fn}.{ext}"
+            return f"{home_dir}/outputs/{fn}{ext}"
     else:
         raise ValueError(f"url not found: {url}")
