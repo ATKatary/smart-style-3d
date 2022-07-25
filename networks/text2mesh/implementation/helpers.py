@@ -45,20 +45,18 @@ def select_model(models: dict):
     selected_model = input("Name of model you want to use: ")
     return selected_model, models[selected_model]
 
-def display(output_dir, obj, n_iter):
+def display(pathes):
     """
     Displays the first and last iteration
     
     Inputs
-        :output_dir: <str> the directory contianing the output files
-        :obj: <str> the name of the object to display results of
-        :n_iter: the number of iteration of the last result
+        :pathes: <list> of pathes to images to show
     """
-    f, plot = plt.subplots(2, 1, figsize=(12, 5))
-    before_image = mpimg.imread(f"{output_dir}/{obj}_iters/iter_0.jpg")
-    after_image = mpimg.imread(f"{output_dir}/{obj}_iters/iter_{(n_iter // 100) * 100}.jpg")
-    plot[0].imshow(before_image)
-    plot[1].imshow(after_image)
+    n = len(pathes)
+    f, plot = plt.subplots(n, 1, figsize=(12, 5))
+    for i in range(len(pathes)):
+        image = mpimg.imread(pathes[i])
+        plot[i].imshow(image)
     plt.show()
 
 def download(home_dir, url = None, stream = False, fn = None):
