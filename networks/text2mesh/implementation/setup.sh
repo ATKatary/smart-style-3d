@@ -7,3 +7,7 @@ cd ..
 git clone https://github.com/threedle/text2mesh
 rm $2
 mv $1 $2
+clear
+
+Green = '\033[0;32m'
+printf "${Green}Successfully completed setup!\033[0m"
