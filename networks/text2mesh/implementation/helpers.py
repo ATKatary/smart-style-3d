@@ -31,7 +31,7 @@ def get_valid_models(dir_path, models = {}, text2mesh_path = "../text2mesh"):
     print(f"Found {len(models)} working models in {dir_path}")
     return models
 
-def select_model(models: dict):
+def select_model(models: dict, selected_model = None):
     """
     Helps user know which models are available and select which one to use
 
@@ -42,7 +42,7 @@ def select_model(models: dict):
         <str> path to selected model
     """
     print(f"The available models are:\n{list(models.keys())}")
-    selected_model = input("Name of model you want to use: ")
+    if selected_model is None: selected_model = input("Name of model you want to use: ")
     return selected_model, models[selected_model]
 
 def display(pathes):
