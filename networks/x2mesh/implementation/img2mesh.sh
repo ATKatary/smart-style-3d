@@ -1,0 +1,2 @@
+python implementation/utils.py --mesh_path $1 --text2mesh_path $5
+python implementation/x2mesh.py --run branch --obj_path $1 --output_dir $2 --prompt $3 --sigma $7  --clamp tanh --n_normaugs 4 --n_augs ${10} --norm_min_crop 0.1 --norm_max_crop 0.4 --geoloss --color_depth 2 --norm_depth 2 --frontview --frontview_std 4 --clipavg view --lr_decay $8 --norm_clamp tanh  --max_crop 1.0 --save_render --seed 29 --n_iter $4 --lr $9 --normal_learning_rate 0.0005 --standardize --no_pe --symmetry --vertices_to_not_change ${11} --background 1 1 1
