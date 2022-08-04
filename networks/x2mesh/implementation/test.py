@@ -65,7 +65,7 @@ def test(nsf, mesh, renderer, encodings, clip_model, optimizer, losses, norm_wei
             encoded_input = encoded_image
             weights = 1.0
 
-        norm_loss = __test(rendered_images, encoded_input, norm_loss, args.n_normaugs, _normaug_transform, weights)
+        norm_loss = __test(clip_model, rendered_images, encoded_input, norm_loss, args.n_normaugs, _normaug_transform, weights)
 
         if args.split_norm_loss: _require_grad(nsf.normals, True) 
         if args.split_color_loss: _require_grad(nsf.colors, False) 
@@ -87,7 +87,7 @@ def test(nsf, mesh, renderer, encodings, clip_model, optimizer, losses, norm_wei
 
     for layer in [nsf.normals, nsf.colors]: _require_grad(layer, True)
 
-    return loss, norm_loss
+    return rendered_images, loss, norm_loss
 
 ### Helper Functions ###
 def _require_grad(layer, true): 

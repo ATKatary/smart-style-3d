@@ -56,7 +56,7 @@ def x2mesh(args):
     for i in tqdm(range(args.n_iter)):
         optimizer.zero_grad()
         _update_mesh(nsf, mesh, network_input, vertex_mask, vertices)
-        loss, norm_loss = test(nsf, mesh, renderer, encodings, clip_model, optimizer, (loss, norm_loss), norm_weight, crop_update, args, i)
+        rendered_images, loss, norm_loss = test(nsf, mesh, renderer, encodings, clip_model, optimizer, (loss, norm_loss), norm_weight, crop_update, args, i)
         
         losses.append(loss.item())
         norm_loss.append(norm_loss.item())
