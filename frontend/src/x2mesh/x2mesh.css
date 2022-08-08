@@ -16,6 +16,9 @@
 
     /*** Sizes ***/
     .width-100 {width: 100%;}
+    .width-90 {width: 90%}
+    .width-80 {width: 80%}
+    .hcalc-28-2 {height: max(calc(28vw + 2px), 338px);}
 
     /*** Shapes ***/    
     .circle {border-radius: 50%;}
@@ -30,6 +33,7 @@
     /*** Margins ***/
     .margin-0 {margin: 0;}
     .margin-5px {margin: 5px;}
+    .margin-15px {margin: 15px;}
     
     /*** Color Gradients ***/
     .green  {background: linear-gradient(180deg, #39CBB9 0%, #5BFE9E 100%);}
@@ -54,6 +58,14 @@
     /*** Class Styles ***/
     .pointer {cursor: pointer;}
     
+    .mesh-info {
+        width: max(20vw, 240px);
+        height: max(8vw, 96px);
+        position: absolute;
+        margin-left: max(55vw, 660px);
+        margin-top: min(-2vw, -24px);
+        background-color: #fff;
+    }
     /*** ID Styles ***/
 
 }

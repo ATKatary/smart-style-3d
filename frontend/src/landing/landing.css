@@ -1,0 +1,81 @@
+/***** Always True *****/
+@media only screen {
+    /*** General Purpose Display Styles ***/
+    .flex {display: flex;}
+    .column {flex-direction: column;}
+    .row {flex-direction: row !important;}
+    .absolute {position: absolute;}
+    .align-center {align-items: center;}
+    .justify-center {justify-content: center;}
+    .align-self-center {align-self: center;}
+    .no-border {border: none;}
+    .justify-end {justify-content: flex-end;}
+    .no-outline {outline: none;}
+    .justify-around {justify-content: space-around;}
+    .align-self-end {align-self: flex-end;}
+    .align-self-start {align-self: flex-start;}
+
+    /*** Sizes ***/
+    .width-100 {width: 100%;}
+    .width-90 {width: 90%}
+
+    /*** Shapes ***/    
+    .circle {border-radius: 50%;}
+
+    /*** Font Colors ***/
+    .text-black {color: #000 !important;}
+    .text-white {color: #fff !important;}
+
+    /*** Borders ***/
+    .border-radius-5px {border-radius: 5px;}
+
+    /*** Margins ***/
+    .margin-0 {margin: 0;}
+    
+    /*** Color Gradients ***/
+    .purple-back {background: linear-gradient(180deg, #E5B2FF 0%, #C184F3 100%);}
+
+    /*** Shadows ***/
+    .box-shadow-4 {box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);}
+    .box-shadow-on-hower:hover {box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);}
+
+    /*** Rotations ***/
+    
+    /*** Element Styles ***/
+
+    /*** Backgrounds ***/
+    .landing-1 {
+        background-image: url("../media/img/landingBack.png");
+        background-repeat: no-repeat;
+        background-size: cover;
+    }
+
+    .landing-button {
+        margin: 25px !important;
+        background: #EAEAEA !important;
+        padding-right: 30px !important;
+        color: #000 !important;
+        padding-left: 29px !important;
+        padding-top: 10px !important;
+        border-radius: 25px !important;
+        padding-bottom: 10px !important;
+    }
+    .landing-button:hover {
+        background: #E1ACFD !important;
+        color: #fff !important;
+    }
+
+    /*** Class Styles ***/
+    .pointer {cursor: pointer;}
+
+    /*** ID Styles ***/
+
+}
+
+/***** > 600px *****/
+@media only screen and (min-width: 700px) {
+}
+
+/***** <= 600px *****/
+@media only screen and (max-width: 700px) {
+}

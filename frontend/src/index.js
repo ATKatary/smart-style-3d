@@ -1,6 +1,6 @@
 import './index.css';
 import React from 'react';
-import X2Mesh from './x2mesh/x2mesh';
+import Landing from './landing/landing';
 import { createRoot } from "react-dom/client";
 import reportWebVitals from './reportWebVitals';
 import {BrowserRouter, Routes, Route} from "react-router-dom";
@@ -11,7 +11,7 @@ createRoot(root).render(
   <React.StrictMode>
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<X2Mesh/>} />
+        <Route path="/" element={<Landing/>} />
       </Routes>
     </BrowserRouter>
   </React.StrictMode>

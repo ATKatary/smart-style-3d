@@ -1,5 +1,7 @@
 """
 imad admin
 """
-from .models import *
+from .models import Mesh
 from django.contrib import admin
+
+admin.site.register(Mesh)

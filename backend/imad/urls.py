@@ -4,4 +4,6 @@ imad url patterns
 from . import views
 from django.urls import path
 
-urlpatterns = []
+urlpatterns = [
+    path("fetch", views.fetch, name = "fetch"),
+]
