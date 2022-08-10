@@ -1,7 +1,7 @@
-import { useEffect, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import { Engine, Scene } from "@babylonjs/core";
 
-export function SceneComponent({antialias, meshDir, meshFileName, engineOptions, adaptToDeviceRatio, sceneOptions, onRender, onSceneReady, ...rest}) {
+export function SceneComponent({antialias, meshInfo, engineOptions, adaptToDeviceRatio, sceneOptions, onRender, onSceneReady, ...rest}) {
     const meshCanvas = useRef(null);
     
     useEffect(() => {
@@ -10,8 +10,8 @@ export function SceneComponent({antialias, meshDir, meshFileName, engineOptions,
         const engine = new Engine(canvas, antialias, engineOptions, adaptToDeviceRatio);
         const scene = new Scene(engine, sceneOptions);
         
-        if (scene.isReady()) onSceneReady(scene, meshDir, meshFileName);
-        else scene.onReadyObservable.addOnce((scene_) => onSceneReady(scene_, meshDir, meshFileName));
+        if (scene.isReady()) onSceneReady(scene, meshInfo);
+        else scene.onReadyObservable.addOnce((scene_) => onSceneReady(scene_, meshInfo));
         
         engine.runRenderLoop(() => {
             if (typeof onRender === "function") onRender(scene);
@@ -27,7 +27,7 @@ export function SceneComponent({antialias, meshDir, meshFileName, engineOptions,
     
             if (window) window.removeEventListener("resize", resize);
         };
-    }, [antialias, meshDir, meshFileName, engineOptions, adaptToDeviceRatio, sceneOptions, onRender, onSceneReady]);
+    }, [antialias, meshInfo, engineOptions, adaptToDeviceRatio, sceneOptions, onRender, onSceneReady]);
 
     return <canvas ref={meshCanvas} {...rest}/>
 }   

@@ -4,6 +4,7 @@ import Landing from './landing/landing';
 import { createRoot } from "react-dom/client";
 import reportWebVitals from './reportWebVitals';
 import {BrowserRouter, Routes, Route} from "react-router-dom";
+import X2Mesh from './x2mesh/x2mesh';
 
 const root = document.getElementById("root");
 
@@ -12,6 +13,7 @@ createRoot(root).render(
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Landing/>} />
+        <Route path="/x2mesh" element={<X2Mesh/>} />
       </Routes>
     </BrowserRouter>
   </React.StrictMode>

@@ -1,112 +1,80 @@
 import './x2mesh.css';
 import * as React from 'react';
-import CloudUploadIcon from '@mui/icons-material/CloudUpload';
-import { IconButton, TextareaAutosize, Typography } from '@mui/material';
-import { StyleOption, Notify } from '../utils/utils';
-import PlayCircleIcon from '@mui/icons-material/PlayCircle';
+import { Typography } from '@mui/material';
 import { MeshRenderer } from './meshRenderer';
+import { MeshInfo, MeshControls, PromptField, StyleControls } from './helpers';
 
 let socket;
+let x;
 const startSocket = () => new WebSocket(`ws://0.0.0.0:8000/ws/api/imad/upload/`);
 
 function X2Mesh() {
-  const [notifyOpen, setNotifyOpen] = React.useState(false);
-  const [notifyMessage, setNotifyMessage] = React.useState("");
-
-  const [globalStyling, setGlobalStyling] = React.useState(false);
-  const [selectiveStyling, setSelectiveStyling] = React.useState(false);
-
-  const [meshDir, setMeshDir] = React.useState("../media/model/");
-  const [meshFileName, setMeshFileName] = React.useState("default.obj");
-
+  /*** Mesh Info ***/
+  const [f, setF] = React.useState(undefined);
+  const [v, setV] = React.useState(undefined);
+  const [vn, setVn] = React.useState(undefined);
+  const [gs, setGS] = React.useState(false);
+  const [ss, setSS] = React.useState(false);
   const [stylePrompt, setStylePrompt] = React.useState("");
 
-  const [faces, setFaces] = React.useState(297298);
-  const [vertices, setVertices] = React.useState(337768);
-  const [vertexNormals, setVertexNormals] = React.useState(0);
-
-  const stringify = (t) => t? "on" : "off"
   const loadMesh = (event) => {
     const data = JSON.parse(event.data);
-    const meshDir = data['meshDir'];
-    const meshFileName = data['meshFileName'];
+    data.name = getName(models(`./${data.name}.obj`))
 
-    const f = data['f'];
-    const v = data['v'];
-    const vn = data['vn'];
+    setF(parseInt(data.f))
+    setV(parseInt(data.v))
+    setVn(parseInt(data.vn))
 
-    setFaces(f);
-    setVertices(v);
-    setVertexNormals(vn);
-
-    // setMeshDir(meshDir);
-    // setMeshFileName(meshFileName);
-    console.log(`mesh path ${meshDir}${meshFileName}`);
+    console.log(`uploaded mesh info:\n`, data);
   }
-
-  const selectMesh = (event) => {
-    const reader = new FileReader()
-    reader.onload = upload;
-    reader.readAsText(event.target.files[0])
-  }
-
-  const upload = (event) => {
-    socket.send(
-      JSON.stringify({
-        "mesh": event.target.result
-      })
-    )
-  }
+  
   if (socket === undefined) {socket = startSocket(); socket.onmessage = loadMesh;}
+  if (x === undefined) {setTimeout(() => {socket.send(JSON.stringify({"mesh": ""}))}, 2000); x = 1;}
+
+  const models = require.context("../media/models", true, /^\.\/.*\.obj$/);
+
+  const getName = (path) => {
+    const fileName = path.split("/").pop()
+    const n = fileName.length;
+    return fileName.substring(0, n - 4);
+  }
+
+  const mesh = {
+    dir: "/static/media/",
+    name: getName(models("./mesh.obj")),
+    ext: ".obj"
+  }
+
+  const stylizedMesh = {...mesh}
+  stylizedMesh.name = getName(models("./mesh_stylized.obj"))
 
   return ( 
     <div className="flex column align-center width-100">
-      <Typography variant="h3" className="align-self-start" style={{marginTop: "20px", fontFamily: "'Martel Sans', sans-serif", marginLeft: "50px"}}>X2Mesh</Typography>
+      <Typography variant="h3" className="align-self-start" style={{marginTop: "20px", fontFamily: "'Martel Sans', sans-serif", marginLeft: "50px"}}>SmartStyle3D</Typography>
       
       <div className="flex align-center width-80 margin-15px">
         {/*** Controls ***/}
-        <div style={{width: "5%", background: "#646464"}} className="hcalc-28-2 flex column align-center box-shadow-4">
-          <input hidden accept=".obj" type="file" id="meshUpload" onChange={selectMesh}/>
-          <PlayCircleIcon  sx={{color: "#fff"}} style={{height: "25px", width: "90px"}} className="pointer margin-15px" onClick={() => {}}/>
-          <CloudUploadIcon sx={{color: "#fff"}} style={{height: "25px", width: "90px"}} className="pointer margin-15px" onClick={() => {document.getElementById("meshUpload").click();}}/>
-        </div>
+        <MeshControls socket={socket}/>
 
         {/*** Mesh ***/}
         <div className="flex" style={{width: "95%", height: "max(28vw, 336px)"}}>
           {/*** Renderer ***/}
-          <div style={{width: "95%", height: "100%", outline: "1px solid #646464"}} className="box-shadow-4">
-            <MeshRenderer id="meshRenderer" meshDir={meshDir} meshFileName={meshFileName}/>
-          </div>
+          <MeshRenderer id={`meshRenderer`} meshInfo={mesh}/>
+          <MeshRenderer id={`meshRenderer2`} meshInfo={stylizedMesh}/>
 
           {/*** Info ***/}
-          <div className="mesh-info box-shadow-4 flex column" style={{padding: "10px"}}>
-            <Typography style={{fontWeight: "600", fontFamily: "'Martel Sans', sans-serif"}}>Mesh Info</Typography>
-            <Typography style={{marginLeft: "10px", fontFamily: "'Martel Sans', sans-serif"}}>faces: {faces}</Typography>
-            <Typography style={{marginLeft: "10px", fontFamily: "'Martel Sans', sans-serif"}}>vertices: {vertices}</Typography>
-            <Typography style={{marginLeft: "10px", fontFamily: "'Martel Sans', sans-serif"}}>vertex normals: {vertexNormals}</Typography>
-          </div>
+          <MeshInfo f={f} v={v} vn={vn}/>
         </div>
       </div>
-
+          
       {/*** Text prompt ***/}
       <div className="flex column align-center width-100">
-        <div className="flex" style={{width: "75%"}}>
-          <StyleOption label={"Global styling"} value={globalStyling} setValue={() => {setGlobalStyling(!globalStyling); setNotifyMessage(`Global styling turned ${stringify(!globalStyling)}`); setNotifyOpen(true)}}/>
-          <StyleOption label={"Selective styling"} value={selectiveStyling} setValue={() => {setSelectiveStyling(!selectiveStyling); setNotifyMessage(`Selective styling turned ${stringify(!selectiveStyling)}`); setNotifyOpen(true)}}/>
-        </div>
-        <TextareaAutosize 
-          placeholder="input stylization prompt, e.g: A beautiful vase made out of bricks" 
-          style={{resize: "none", padding: "15px"}} 
-          className="width-80 box-shadow-4 no-outline no-border" 
-          value={stylePrompt}
-          onChange={(event) => {setStylePrompt(event.target.value); console.log(stylePrompt)}}
-          minRows={1} 
-          maxRows={1}/>
+        <StyleControls gs={gs} ss={ss} setGS={setGS} setSS={setSS}/>
+        <PromptField prompt={stylePrompt} setPrompt={setStylePrompt} stylize={() => {}}/>
       </div>
-
-      <Notify open={notifyOpen} handleClose={() => setNotifyOpen(false)} message={notifyMessage}/>
     </div>
   );
 }
 
 export default X2Mesh;
+

@@ -31,7 +31,7 @@ class MeshConsumer(WebsocketConsumer):
         """
         try: 
             print("Closing ....")
-            os.remove(self.mesh.path)
+            # os.remove(self.mesh.path)
             
         except Exception as error: print(f"Error occurred while removing script {self.mesh.path}: {report(error)}")
 
@@ -44,7 +44,20 @@ class MeshConsumer(WebsocketConsumer):
         """
         text_data = json.loads(text_data)
         mesh = text_data['mesh']
-        self.mesh.overwrite(mesh)
-        head, tail = os.path.split(self.mesh.path);
+
+        if mesh != "": 
+            self.mesh.overwrite(mesh)
         self.mesh.extract()
-        self.send(text_data = json.dumps({'meshDir': head, 'meshFileName': tail, 'v': self.mesh.vertices, 'vn': self.mesh.vertex_normals, 'f': self.mesh.faces}))
+
+        head, tail = os.path.split(self.mesh.path)
+        name, ext = os.path.splitext(tail)
+        
+        mesh_info = {
+            'dir': "/static/media/",
+            'name': name,
+            'ext': ext,
+            'f': self.mesh.faces,
+            'v': self.mesh.vertices,
+            'vn': self.mesh.vertex_normals,
+        }
+        self.send(text_data = json.dumps(mesh_info))

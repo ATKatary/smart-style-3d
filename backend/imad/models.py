@@ -8,6 +8,7 @@ from django.db import models
 
 ### Global Constants ###
 alphabet_size = 26
+extract_line_info = lambda line: list(map(lambda x: float(x), line.split(" ")[1:4]))
 
 class Mesh(models.Model):
   """
@@ -27,7 +28,7 @@ class Mesh(models.Model):
   vertices = models.IntegerField(default=0)
   vertex_normals = models.IntegerField(default=0)
   name = models.CharField(max_length=alphabet_size, default="Vase")
-  path = models.CharField(max_length=alphabet_size ** 2, default=f"{Path(__file__).parent.absolute()}/models/{id_value}.obj")
+  path = models.CharField(max_length=alphabet_size ** 2, default=f"{Path(__file__).parent.parent.parent.absolute()}/frontend/src/media/models/mesh.obj")
   id = models.UUIDField(primary_key = True,  editable = False, unique = True, default = id_value)
 
   def extract(self):
@@ -38,10 +39,12 @@ class Mesh(models.Model):
       mesh = script.read()
       v, vn, f = 0, 0, 0
 
-      for line in mesh:
-        if line.startswith('v'): v += 1 
-        elif line.startswith('vn'): vn += 1
-        elif line.startswith('f'): f += 1  
+      for line in mesh.split("\n"):
+        if line.startswith('v '): 
+          v += 1 
+          # vertices += extract_line_info(line)
+        elif line.startswith('vn '): vn += 1
+        elif line.startswith('f '): f += 1  
 
       self.faces = f
       self.vertices = v
