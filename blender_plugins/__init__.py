@@ -24,10 +24,10 @@ bl_info = {
 
 import bpy 
 from bpy.props import StringProperty
-from .operators.selector import Selector_OT_Op
-from .panels.selector import Selector_PT_Panel
+from .operators.stylize import Stylize_OT_Op
+from .panels.stylize import SmartStyle3D_PT_Panel
 
-classes = (Selector_OT_Op, Selector_PT_Panel)
+classes = (Stylize_OT_Op, SmartStyle3D_PT_Panel)
 
 def register():
     """"""
