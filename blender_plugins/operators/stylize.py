@@ -27,17 +27,20 @@ class Stylize_OT_Op(Operator):
     def execute(self, context):
         """ Executes the operator and stores the selected vertices in the selected directory """
         obj = context.view_layer.objects.active
-        mesh = obj.data
+        mesh = bmesh.from_edit_mesh(obj.data)
         mesh_data = ""
         selected_vertices = []
 
-        for vertex in  mesh.vertices:
+        
+
+        for vertex in  mesh.verts:
+            if vertex.select == True: 
+                selected_vertices.append(vertex.index)
             mesh_data += "v %.4f %.4f %.4f\n" % vertex.co[:]
 
-        for face in mesh.polygons:
+        for face in obj.data.polygons:
             mesh_data += "f"
             for vertex in face.vertices:
-                if vertex.select == True: selected_vertices.append(vertex.index)
                 mesh_data += f" {vertex + 1}"  
             mesh_data += "\n"
         
