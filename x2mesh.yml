@@ -1,4 +1,4 @@
-name: text2mesh
+name: ss3d
 channels:
   - pytorch
   - conda-forge
