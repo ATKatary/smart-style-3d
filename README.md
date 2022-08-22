@@ -1,1 +1,1 @@
-# Interpolating Model Awareness and Design
+# Smart Style 3D
