@@ -6,5 +6,5 @@ from django.urls import path
 
 urlpatterns = [
     path("fetch", views.fetch, name = "fetch"),
-    path("upload", views.upload, name = "upload"),
+    path("stylize", views.stylize, name = "stylize"),
 ]

@@ -42,7 +42,7 @@ def fetch(request, *args, **kwargs):
     return Response(status = event_status, data = data)
 
 @api_view(['GET'])
-def upload(request, *args, **kwargs):
+def stylize(request, *args, **kwargs):
     """
     Uploads model with given id
 
