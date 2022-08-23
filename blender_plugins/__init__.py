@@ -23,18 +23,36 @@ bl_info = {
 }
 
 import bpy 
-from bpy.props import StringProperty
+from .operators.mesh import Insert_OT_Op
 from .operators.stylize import Stylize_OT_Op
 from .panels.stylize import SmartStyle3D_PT_Panel
+from bpy.props import StringProperty, EnumProperty
 
-classes = (Stylize_OT_Op, SmartStyle3D_PT_Panel)
+classes = (Stylize_OT_Op, Insert_OT_Op, SmartStyle3D_PT_Panel)
+props = {
+    'prompt': StringProperty(
+        name = "", 
+        default = 'A vase made of wood'
+    ),
+
+    'selected_mesh': EnumProperty(
+        name = "",
+        items = [
+            ('0', "Vase", "Add a vase to the scene"),
+            ('1', "Cup Holder", "Add a cup holder to the scene"),
+            ('2', "Lamp", "Add a lamp to the scene") 
+        ]
+    )
+}
 
 def register():
-    """"""
+    """ """
     for class_ in classes: bpy.utils.register_class(class_)
-    bpy.types.Scene.directory = StringProperty(subtype='DIR_PATH')
+    for prop_name, prop_value in props.items(): setattr(bpy.types.Scene, prop_name, prop_value)
 
 def unregister():
-    """"""
+    """ """
     for class_ in classes: bpy.utils.unregister_class(class_)
-    del(bpy.types.Scene.directory)
+
+if __name__ == "__main__":
+    register()
