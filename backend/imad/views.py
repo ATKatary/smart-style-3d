@@ -57,13 +57,14 @@ def upload(request, *args, **kwargs):
     """
     data = {}
     request = request.GET
-    fetch_fields = ["mesh", "status", "text2mesh", "selected"]
+    fetch_fields = ["mesh", "status", "text2mesh", "selected", "selected_mesh"]
     event_status = _is_subset(fetch_fields, request.keys())
     
     if event_status == status.HTTP_200_OK:
         mesh_data = request['mesh']
         prompt = request['text2mesh']
         mesh_status = request['status']
+        selected_mesh = request['selected_mesh']
         selected_verticies = request['selected']
         
         mesh = Mesh()
@@ -71,11 +72,11 @@ def upload(request, *args, **kwargs):
         mesh.extract()
 
         try:
-            stylized_mesh = mesh.text2mesh(prompt, selected_verticies)
+            stylized_mesh = mesh.text2mesh(prompt, selected_verticies, selected_mesh)
             data['stylized_mesh'] = stylized_mesh
         except Exception as error: print(f"Error occured while stylizing\n{report(error)}")
 
         if mesh_status == save: mesh.save()
-        mesh.remove()
+        # mesh.remove()
 
     return Response(status = event_status, data = data)

@@ -3,7 +3,8 @@ import numpy as np
 import kaolin as kal
 from .utils import device
 from kaolin.render.camera import (
-   generate_transformation_matrix
+   generate_transformation_matrix,
+   generate_perspective_projection
 )
 from kaolin.render.mesh import (
     prepare_vertices,
@@ -24,7 +25,7 @@ class Renderer():
         self.mesh = mesh
         self.camera = camera
         if self.camera is None: 
-            self.camera = kal.render.camera.generate_perspective_projection(np.pi / 3).to(device)
+            self.camera = generate_perspective_projection(np.pi / 3).to(device)
         
         self.lights = lights
         if self.lights is None: self.lights = torch.tensor([1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0]).to(device)
@@ -32,7 +33,7 @@ class Renderer():
         self.h = h
         self.w = w
 
-    def __call__(self, n_views, elev = None, azim = None, camera_distance = 2):
+    def __call__(self, n_views, elev = None, azim = None, camera_distance = 3):
         """
         Renders some front views of the mesh by first generating the transform matrix (i.e P_cam = P_world x M)
         
@@ -64,7 +65,7 @@ class Renderer():
         
         face_attributes = [self.mesh.face_attributes.repeat(n_views, 1, 1, 1), torch.ones((n_views, n_faces, 3, 1)).to(device)]
         
-        image_features, soft_masks, face_index = dibr_rasterization(self.w, self.h, vertices_camera[:, :, :, -1], vertices_world, face_attributes, face_normals[:, :, -1])
+        image_features, soft_masks, face_index = dibr_rasterization(self.h, self.w, vertices_camera[:, :, :, -1], vertices_world, face_attributes, face_normals[:, :, -1])
         
         image_features, masks = image_features
         images = torch.clamp(image_features, 0, 1)

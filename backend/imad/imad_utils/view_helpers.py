@@ -3,6 +3,7 @@ view helpers
 """
 from rest_framework import status
 from django.core.exceptions import ValidationError
+
 ### Global COnstants ###
 report = lambda error: f"----------------------------\n{error}\n----------------------------\n"
 

@@ -73,7 +73,7 @@ class Mesh(models.Model):
       script.write(new_mesh)
       script.close()
 
-  def text2mesh(self, prompt, vertices_to_not_change):
+  def text2mesh(self, prompt, vertices_to_not_change, selected_mesh):
     """
     Stylizes a mesh and stores the stylized output in a stylized file corresponding to self.id file
 
@@ -81,26 +81,26 @@ class Mesh(models.Model):
       :prompt: <str> the string to use for stylizing the mesh
     """
     print("Text2mesh Stylizing ...")
-    n_iter = 2
+    n_iter = 401
     output_dir = f"{self.dir}/{self.id}_result"
     os.mkdir(output_dir)
 
     args['n_iter'] = n_iter
     args['prompt'] = prompt
-    args['obj_path'] = f"{self.dir}/vase.obj"
     args['output_dir'] = output_dir
     args['verticies_in_file'] = False
+    args['obj_path'] = f"{self.dir}/{selected_mesh}.obj"
     args['vertices_to_not_change'] = vertices_to_not_change
     
     x2mesh(args, clip_model, preprocess)
 
-    with open(f"{output_dir}/vase_final_style_0/vase_{(n_iter // 100) * 100}_iters.obj", 'r') as mesh: 
+    with open(f"{output_dir}/{selected_mesh}_final_style_0/vase_{(n_iter // 100) * 100}_iters.obj", 'r') as mesh: 
       return mesh.read()
 
   def remove(self):
     """ Removes the mesh """
     os.remove(self.path)
-    os.system(f"rm -rf {self.path}/{self.id}_result")
+    os.system(f"rm -rf {self.dir}/{self.id}_result")
 
   def __str__(self) -> str:
     """ Override models.Model.__str__() """

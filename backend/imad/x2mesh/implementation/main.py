@@ -58,11 +58,11 @@ def x2mesh(args, clip_model, preprocess):
         if activate_scheduler: lr_scheduler.step()
         if args['decay_freq'] is not None and i % args['decay_freq'] == 0: norm_weight *= args[crop_decay]
 
-        if i % 100 == 0: _report(mesh, rendered_images, results_path, losses, i)
-    _report(mesh, rendered_images, results_path, losses, i)
+        if i % 100 == 0: _report(mesh, args['n_views'], results_path, losses, i)
+    _report(mesh, args['n_views'], results_path, losses, i)
   
 ### Helper Functions ###
-def _report(mesh, rendered_images, results_path, losses, i):
+def _report(mesh, n_views, results_path, losses, i):
     """
     Reports the ith state of the mesh by storing the ith model state and different 
     rendered images of the mesh and stores it in results, while reporting the loss
@@ -76,7 +76,7 @@ def _report(mesh, rendered_images, results_path, losses, i):
     """
     final_dir, iters_dir = results_path
     _export_final(final_dir, mesh, losses, i)
-    _export_iters(iters_dir, rendered_images, i)
+    _export_iters(iters_dir, mesh, n_views, i)
 
 def _update_mesh(nsf, mesh, network_input, vertex_mask, vertices):
     """
