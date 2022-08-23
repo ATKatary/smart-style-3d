@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import { Engine, Scene } from "@babylonjs/core";
 
-export function SceneComponent({antialias, meshInfo, engineOptions, adaptToDeviceRatio, sceneOptions, onRender, onSceneReady, ...rest}) {
+export function SceneComponent({antialias, url, name, engineOptions, adaptToDeviceRatio, sceneOptions, onRender, onSceneReady, ...rest}) {
     const meshCanvas = useRef(null);
     
     useEffect(() => {
@@ -10,8 +10,8 @@ export function SceneComponent({antialias, meshInfo, engineOptions, adaptToDevic
         const engine = new Engine(canvas, antialias, engineOptions, adaptToDeviceRatio);
         const scene = new Scene(engine, sceneOptions);
         
-        if (scene.isReady()) onSceneReady(scene, meshInfo);
-        else scene.onReadyObservable.addOnce((scene_) => onSceneReady(scene_, meshInfo));
+        if (scene.isReady()) onSceneReady(scene, name, url);
+        else scene.onReadyObservable.addOnce((scene_) => onSceneReady(scene_, name, url));
         
         engine.runRenderLoop(() => {
             if (typeof onRender === "function") onRender(scene);
@@ -27,7 +27,7 @@ export function SceneComponent({antialias, meshInfo, engineOptions, adaptToDevic
     
             if (window) window.removeEventListener("resize", resize);
         };
-    }, [antialias, meshInfo, engineOptions, adaptToDeviceRatio, sceneOptions, onRender, onSceneReady]);
+    }, [antialias, url, name, engineOptions, adaptToDeviceRatio, sceneOptions, onRender, onSceneReady]);
 
     return <canvas ref={meshCanvas} {...rest}/>
 }   

@@ -1,7 +1,7 @@
 import './x2mesh.css';
-import * as React from 'react';
-import { Typography } from '@mui/material';
+import React, {useState} from 'react';
 import { MeshRenderer } from './meshRenderer';
+import { Typography, Button } from '@mui/material';
 import { MeshInfo, MeshControls, PromptField, StyleControls } from './helpers';
 
 let socket;
@@ -10,43 +10,37 @@ const startSocket = () => new WebSocket(`ws://0.0.0.0:8000/ws/api/imad/upload/`)
 
 function X2Mesh() {
   /*** Mesh Info ***/
-  const [f, setF] = React.useState(undefined);
-  const [v, setV] = React.useState(undefined);
-  const [vn, setVn] = React.useState(undefined);
-  const [gs, setGS] = React.useState(false);
-  const [ss, setSS] = React.useState(false);
-  const [stylePrompt, setStylePrompt] = React.useState("");
+  const [i, setI] = useState(1);
+  const [meshURL, setMeshURL] = useState(undefined);
+  const [stylizedMeshURL, setStylizedMeshURL] = useState(undefined);
+  const [f, setF] = useState(42618);
+  const [v, setV] = useState(21311);
+  const [vn, setVn] = useState(21311);
+  const [gs, setGS] = useState(false);
+  const [ss, setSS] = useState(false);
+  const [styleEmpty, setStyleEmpty] = useState(true);
 
   const loadMesh = (event) => {
     const data = JSON.parse(event.data);
-    data.name = getName(models(`./${data.name}.obj`))
-
-    setF(parseInt(data.f))
-    setV(parseInt(data.v))
-    setVn(parseInt(data.vn))
-
+    
+    setF(data['f'])
+    setV(data['v'])
+    setVn(data['vn'])
     console.log(`uploaded mesh info:\n`, data);
   }
   
   if (socket === undefined) {socket = startSocket(); socket.onmessage = loadMesh;}
-  if (x === undefined) {setTimeout(() => {socket.send(JSON.stringify({"mesh": ""}))}, 2000); x = 1;}
 
   const models = require.context("../media/models", true, /^\.\/.*\.obj$/);
 
-  const getName = (path) => {
-    const fileName = path.split("/").pop()
-    const n = fileName.length;
-    return fileName.substring(0, n - 4);
-  }
+  const getName = (path) => path.split("/").pop();
 
-  const mesh = {
-    dir: "/static/media/",
-    name: getName(models("./mesh.obj")),
-    ext: ".obj"
+  const stylize = (event) => {
+    setStyleEmpty(false);
+    if (i % 2 === 1) setI(i + 1);
+    const text2meshPrompt = document.getElementById("text2meshPrompt");
+    socket.send(JSON.stringify({"type": "text2mesh", "data": text2meshPrompt.value}))
   }
-
-  const stylizedMesh = {...mesh}
-  stylizedMesh.name = getName(models("./mesh_stylized.obj"))
 
   return ( 
     <div className="flex column align-center width-100">
@@ -54,13 +48,13 @@ function X2Mesh() {
       
       <div className="flex align-center width-80 margin-15px">
         {/*** Controls ***/}
-        <MeshControls socket={socket}/>
+        <MeshControls socket={socket} setMesh={setMeshURL} i={i} setI={setI} setStyleEmpty={setStyleEmpty}/>
 
         {/*** Mesh ***/}
         <div className="flex" style={{width: "95%", height: "max(28vw, 336px)"}}>
           {/*** Renderer ***/}
-          <MeshRenderer id={`meshRenderer`} meshInfo={mesh}/>
-          <MeshRenderer id={`meshRenderer2`} meshInfo={stylizedMesh}/>
+          <MeshRenderer id={`meshRenderer`} name={getName(models("./mesh.obj"))} url={meshURL} className={`mesh-${i % 2}`} rotate={false}/>
+          <MeshRenderer id={`meshRenderer2`} name={getName(models("./mesh_stylized.obj"))} url={stylizedMeshURL} className={`mesh-${(i + 1) % 2}`} rotate={true} empty={styleEmpty}/>
 
           {/*** Info ***/}
           <MeshInfo f={f} v={v} vn={vn}/>
@@ -70,7 +64,7 @@ function X2Mesh() {
       {/*** Text prompt ***/}
       <div className="flex column align-center width-100">
         <StyleControls gs={gs} ss={ss} setGS={setGS} setSS={setSS}/>
-        <PromptField prompt={stylePrompt} setPrompt={setStylePrompt} stylize={() => {}}/>
+        <PromptField stylize={stylize}/>
       </div>
     </div>
   );

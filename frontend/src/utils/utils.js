@@ -1,6 +1,6 @@
 import * as React from 'react';
 import CloseIcon from '@mui/icons-material/Close';
-import { Snackbar, Button, IconButton, Checkbox, FormControlLabel } from '@mui/material';
+import { Snackbar, IconButton, Checkbox, FormControlLabel } from '@mui/material';
 
 export function StyleOption(props) {
 

@@ -4,7 +4,7 @@ import SendIcon from '@mui/icons-material/Send';
 import { StyleOption, Notify } from '../utils/utils';
 import PlayCircleIcon from '@mui/icons-material/PlayCircle';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
-import { TextareaAutosize, Typography, IconButton } from '@mui/material';
+import { TextareaAutosize, Typography, IconButton, Tooltip, Button } from '@mui/material';
 
 
 /**
@@ -34,14 +34,16 @@ export function PromptField(props) {
     return (
         <div className="flex width-80">
             <TextareaAutosize 
+            id="text2meshPrompt"
             placeholder="input stylization prompt, e.g: A beautiful vase made out of bricks" 
             style={{resize: "none", padding: "15px", width: "65%"}} 
             className="box-shadow-4 no-outline no-border" 
-            value={props.prompt}
-            onChange={(event) => {props.setPrompt(event.target.value)}}
             minRows={1} 
             maxRows={1}/>
-            <IconButton style={{marginLeft: "10px"}} onClick={props.stylize}><SendIcon /></IconButton>
+            {/* <Tooltip title="Stylize">
+                <IconButton style={{marginLeft: "10px"}} onClick={props.stylize}><SendIcon /></IconButton>
+            </Tooltip> */}
+            <Button style={{marginLeft: "10px"}} onClick={props.stylize}>Stylize</Button>
         </div>
 
     )
@@ -58,13 +60,27 @@ export function MeshControls(props) {
         reader.onload = upload;
         reader.readAsText(event.target.files[0])
     }
-    const upload = (event) => {props.socket.send(JSON.stringify({"mesh": event.target.result}))}
+    const upload = (event) => {
+        const mesh = event.target.result;
+        const blob = new Blob([mesh])
+        const url = URL.createObjectURL(blob)
+        
+        if (props.i % 2 === 0) props.setI(props.i + 1) 
+        props.setStyleEmpty(true);
+
+        props.setMesh(url)
+        props.socket.send(JSON.stringify({"type": "upload","data": event.target.result}));
+    }
 
     return (
         <div style={{width: "5%", background: "#646464"}} className="hcalc-28-2 flex column align-center box-shadow-4">
             <input hidden accept=".obj" type="file" id="meshUpload" onChange={selectMesh}/>
-            <PlayCircleIcon  sx={{color: "#fff"}} style={{height: "25px", width: "90px"}} className="pointer margin-15px" onClick={() => {}}/>
-            <CloudUploadIcon sx={{color: "#fff"}} style={{height: "25px", width: "90px"}} className="pointer margin-15px" onClick={() => {document.getElementById("meshUpload").click();}}/>
+            <Tooltip title="stylize">
+               <PlayCircleIcon  sx={{color: "#fff"}} style={{height: "25px", width: "90px"}} className="pointer margin-15px" onClick={() => {}}/>
+            </Tooltip>
+            <Tooltip title="upload">
+                <CloudUploadIcon sx={{color: "#fff"}} style={{height: "25px", width: "90px"}} className="pointer margin-15px" onClick={() => {document.getElementById("meshUpload").click();}}/>
+            </Tooltip>
         </div>
     )
 }
