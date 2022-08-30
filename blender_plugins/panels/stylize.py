@@ -31,8 +31,24 @@ class SmartStyle3D_PT_Panel(Panel):
 
         layout.separator()
 
+        layout.label(text="Base Segment")
+        base_segment_row = layout.row()
+        base_segment_col = base_segment_row.column()
+        base_segment_col.operator("object.base_segment_mesh", icon = "PLUGIN")
+ 
+        layout.separator()
+
+        layout.label(text="Spectural Segment")
+        segment_row = layout.row()
+        segment_col = segment_row.column()
+        segment_col.operator("mesh.segment_mesh", icon = "PLUGIN")
+
+        layout.separator()
+
         stylize_row = layout.row()
         stylize_col = stylize_row.column()
         stylize_col.operator("object.stylize_mesh", icon = "PLUGIN")
+
+
 
 

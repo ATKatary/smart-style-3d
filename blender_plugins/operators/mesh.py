@@ -16,7 +16,7 @@ class Insert_OT_Op(Operator):
     AF() = Uploads a mesh to the backend to be stylized and sent back
     """
     bl_idname = "object.insert_mesh"
-    bl_label = "Inserts mesh"
+    bl_label = "Insert mesh"
     bl_description = "Adds the selected mesh to the scene"
 
     @classmethod

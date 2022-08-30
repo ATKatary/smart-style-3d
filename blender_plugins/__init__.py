@@ -23,12 +23,14 @@ bl_info = {
 }
 
 import bpy 
+from .operators.base import Base_OT_Op
 from .operators.mesh import Insert_OT_Op
 from .operators.stylize import Stylize_OT_Op
+from .operators.segment import Segment_OT_Op
 from .panels.stylize import SmartStyle3D_PT_Panel
 from bpy.props import StringProperty, EnumProperty
 
-classes = (Stylize_OT_Op, Insert_OT_Op, SmartStyle3D_PT_Panel)
+classes = (Stylize_OT_Op, Insert_OT_Op, SmartStyle3D_PT_Panel, Base_OT_Op, Segment_OT_Op)
 props = {
     'prompt': StringProperty(
         name = "", 
