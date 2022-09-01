@@ -77,6 +77,6 @@ def stylize(request, *args, **kwargs):
         except Exception as error: print(f"Error occured while stylizing\n{report(error)}")
 
         if mesh_status == save: mesh.save()
-        # mesh.remove()
+        mesh.remove()
 
     return Response(status = event_status, data = data)

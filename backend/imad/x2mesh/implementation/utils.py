@@ -26,7 +26,7 @@ def read_mesh(mesh_path):
         for i in range(len(lines)):
             if "f " in lines[i]: print(f"{i} {lines[i]}")
     
-def check_mesh(mesh_path, text2mesh_path):
+def check_mesh(mesh_path):
     """
     Checks whether the number of verticies equals the number of vertex normals in a mesh and produces a warning or fails if they are not
     Changes the text2mesh mesh.py to reflect the discripency within the mesh file
@@ -49,7 +49,7 @@ def check_mesh(mesh_path, text2mesh_path):
         mesh_file.close()
         
         if num_vertices != num_normals: 
-            print(f"\033[93mCaution[Obj Deprecated]: Number of verticies ({num_vertices}) != the number of normals ({num_normals})\033[0m")
+            print(f"\033[93mCaution[{mesh_path} Deprecated]: Number of verticies ({num_vertices}) != the number of normals ({num_normals})\033[0m")
             remesh = input("Do you want to remesh? (y, [n]): ")
             if remesh.lower() in yes:
                 print(f"Remeshing ...")
@@ -57,12 +57,12 @@ def check_mesh(mesh_path, text2mesh_path):
                 ms.load_new_mesh(mesh_path)
                 ms.meshing_isotropic_explicit_remeshing()
                 ms.save_current_mesh(f"{mesh_path}")
-                return check_mesh(mesh_path, text2mesh_path)
+                return check_mesh(mesh_path)
             else:
                 remove = input("Do you want to remove this model? (y, [n]): ")
                 if remove in yes: os.remove(mesh_path)
 
-        else: print(f"\033[92mSuccess[{mesh_path} is goo!]: Number of verticies ({num_vertices}) == the number of normals ({num_normals})\033[0m")
+        else: print(f"\033[92mSuccess[{mesh_path} is good!]: Number of verticies ({num_vertices}) == the number of normals ({num_normals})\033[0m")
 
 class FourierFeatureTransform(torch.nn.Module):
     """

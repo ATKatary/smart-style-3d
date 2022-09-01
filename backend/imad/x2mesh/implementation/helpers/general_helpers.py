@@ -22,7 +22,7 @@ def get_valid_models(dir_path, models = {}, text2mesh_path = "../text2mesh"):
         if isfile(file_path):
             if ".obj" == filename[-4:]:
                 try: 
-                    check_mesh(file_path, text2mesh_path)
+                    check_mesh(file_path)
                     models[filename[:-4]] = file_path
                 except ValueError: print(f"\033[91mFail[{file_path} Deprecated]\033[0m")
                 

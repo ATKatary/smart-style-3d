@@ -1,5 +1,7 @@
 import os
 import torch
+import pymeshlab
+import numpy as np
 import kaolin as kal
 from utils import device
 from kaolin.io.obj import (import_mesh)
@@ -65,27 +67,40 @@ class Mesh():
             :path: <str> path to the file to export the mesh to
             :color: <boolean> indicating whether to save mesh color or not 
         """
-        color = self.color if color else None 
-        name, ext = os.path.splitext(os.path.basename(self.path))
-        with open(path, "w+") as mesh_file:
-            mesh_file.write(f"########## {name} ##########\n")
-            mesh_file.write(f"##### faces: {len(self.faces)}\n")
-            mesh_file.write(f"##### vertices: {len(self.vertices)}\n")
-            mesh_file.write(f"##### vertex normals: {len(self.vertex_normals)}\n\n")
-            mesh_file.write("########## vertices ##########\n")
-            for i, vertex in enumerate(self.vertices):
-                x, y, z = vertex
-                mesh_file.write(f"v {x} {y} {z}")
-                if color is not None: 
-                    r, g, b = color[i]
-                    mesh_file.write(f" {r} {g} {b}")
-                mesh_file.write("\n")
+        faces =  np.float64(self.faces.cpu().numpy())
+        vertices = np.float64(self.vertices.cpu().numpy())
+        vertex_normals = np.float64(self.vertex_normals.cpu().numpy())
+        
+        if color:
+            colors = np.zeros((vertices.shape[0], 4))
+            for i, [r, g, b] in enumerate(np.float64(self.color.cpu().numpy())):
+                colors[i] = np.array([r, g, b, 1])
 
-                if self.vertex_normals is not None:
-                    x, y, x = self.vertex_normals[i]
-                    mesh_file.write(f"vn {x} {y} {z}\n")
-            mesh_file.write("########## faces ##########\n")
-            for face in self.faces:
-                v1, v2, v3 = face
-                mesh_file.write(f"v {v1} {v2} {v3}\n")
-            mesh_file.close()
+        name, ext = os.path.splitext(os.path.basename(self.path))
+        mesh_set = pymeshlab.MeshSet()
+        mesh_set.add_mesh(pymeshlab.Mesh(vertices, faces, v_normals_matrix=vertex_normals, v_color_matrix=colors))
+        mesh_set.save_current_mesh(path)
+
+        # with open(path, "w+") as mesh_file:
+        #     for i, vertex in enumerate(self.vertices):
+        #         x, y, z = vertex
+        #         mesh_file.write(f"v {x} {y} {z}")
+        #         if color is not None: 
+        #             r, g, b = color[i]
+        #             mesh_file.write(f" {r} {g} {b}")
+        #         mesh_file.write("\n")
+            
+        #         if self.vertex_normals is not None:
+        #             x, y, x = self.vertex_normals[i]
+        #             mesh_file.write(f"vn {x} {y} {z}\n")
+        #     mesh_file.write("########## faces ##########\n")
+        #     for face in self.faces:
+        #         v1, v2, v3 = face
+        #         mesh_file.write(f"v {v1} {v2} {v3}\n")
+            
+        #     mesh_file.write(f"########## {name} ##########\n")
+        #     mesh_file.write(f"##### faces: {len(self.faces)}\n")
+        #     mesh_file.write(f"##### vertices: {len(self.vertices)}\n")
+        #     mesh_file.write(f"##### vertex normals: {len(self.vertex_normals)}\n\n")
+        #     mesh_file.write("########## vertices ##########\n")
+        #     mesh_file.close()

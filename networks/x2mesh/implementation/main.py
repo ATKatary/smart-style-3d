@@ -2,25 +2,22 @@ import clip
 import torch
 from tqdm import tqdm
 from copy import deepcopy
-from .utils import device
+from utils import device
 from render import Renderer
 from torchvision import transforms
-from .helpers.x2mesh_helpers import (
+from helpers.x2mesh_helpers import (
     _initiate,
     _construct_mask
 )
-from .helpers.report_helpers import (
+from helpers.report_helpers import (
     _export_final,
     _export_iters
 )
-from .test import test
+from test import test
 
 torch.autograd.set_detect_anomaly(True)
-### Global Constants ####
-clip_model, preprocess = clip.load('ViT-B/32', device, jit=False)
-
 ### Functions ###
-def x2mesh(args):
+def x2mesh(args, clip_model, preprocess):
     """
     Runs the neural style field on the model and uses cosine similarity between different images of the mesh and a clip embedding of
     the prompt (or image) to learn an optimal stylization of the model
@@ -38,7 +35,7 @@ def x2mesh(args):
     rendered_images = None
     mesh, nsf, results_path, encodings, crop_cur, crop_update = _initiate(clip_model, preprocess, args)
 
-    vertex_mask = _construct_mask(args.vertices_to_not_change, mesh)
+    vertex_mask = _construct_mask(args.vertices_to_not_change, mesh, args.verticies_in_file)
 
     renderer = Renderer(mesh)
     optimizer = torch.optim.Adam(nsf.parameters(), args.lr, weight_decay=args.decay)
@@ -56,19 +53,16 @@ def x2mesh(args):
     for i in tqdm(range(args.n_iter)):
         optimizer.zero_grad()
         _update_mesh(nsf, mesh, network_input, vertex_mask, vertices)
-        rendered_images, loss, norm_loss = test(nsf, mesh, renderer, encodings, clip_model, optimizer, (loss, norm_loss), norm_weight, crop_update, args, i)
+        rendered_images, _, _ = test(nsf, mesh, renderer, encodings, clip_model, optimizer, (loss, norm_loss), norm_weight, crop_update, args, i)
         
-        losses.append(loss.item())
-        norm_loss.append(norm_loss.item())
         if activate_scheduler: lr_scheduler.step()
-        with torch.no_grad(): losses.append(loss.item())
         if args.decay_freq is not None and i % args.decay_freq == 0: norm_weight *= args.crop_decay
 
-        if i % 100 == 0: _report(mesh, rendered_images, results_path, losses, i)
-    _report(mesh, rendered_images, results_path, losses, i)
+        if i % 100 == 0: _report(mesh, args.n_views, results_path, losses, i)
+    _report(mesh, args.n_views, results_path, losses, i)
   
 ### Helper Functions ###
-def _report(mesh, rendered_images, results_path, losses, i):
+def _report(mesh, n_views, results_path, losses, i):
     """
     Reports the ith state of the mesh by storing the ith model state and different 
     rendered images of the mesh and stores it in results, while reporting the loss
@@ -82,7 +76,7 @@ def _report(mesh, rendered_images, results_path, losses, i):
     """
     final_dir, iters_dir = results_path
     _export_final(final_dir, mesh, losses, i)
-    _export_iters(iters_dir, rendered_images, i)
+    _export_iters(iters_dir, mesh, n_views, i)
 
 def _update_mesh(nsf, mesh, network_input, vertex_mask, vertices):
     """
@@ -97,5 +91,7 @@ def _update_mesh(nsf, mesh, network_input, vertex_mask, vertices):
     """
     pred_rgb, pred_normal = nsf(network_input)
     pred_rgb = vertex_mask.to(device) * pred_rgb
+    # print(">> ", mesh.vertices.shape, mesh.vertex_normals.shape, pred_normal.shape, vertex_mask.shape, vertices.shape)
+
     mesh.set_face_attributes_from_color(pred_rgb)
     mesh.vertices = vertices + vertex_mask * (mesh.vertex_normals * pred_normal)

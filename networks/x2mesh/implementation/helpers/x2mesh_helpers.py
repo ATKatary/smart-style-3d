@@ -6,8 +6,8 @@ import numpy as np
 from PIL import Image
 from mesh import Mesh
 from pathlib import Path
-from ..utils import device
-from ..neural_style_field import NeuralStyleField
+from utils import device
+from neural_style_field import NeuralStyleField
 
 def _initiate(clip_model, preprocess, args):
     """
@@ -31,11 +31,11 @@ def _initiate(clip_model, preprocess, args):
     Path(args.output_dir).mkdir(parents=True, exist_ok=True)
     mesh_name, extension = os.path.splitext(os.path.basename(mesh_path))
     
-    final_dir = os.path.join(output_dir, f"{mesh_name}_final_style_0")
-    iters_dir = os.path.join(output_dir, f"{mesh_name}_iters_style_0")
-    __create_dir(final_dir)
-    __create_dir(iters_dir)
-
+    final_dir = os.path.join(output_dir, f"{mesh_name}_final_style")
+    iters_dir = os.path.join(output_dir, f"{mesh_name}_iters_style")
+    final_dir = __create_dir(final_dir)
+    iters_dir = __create_dir(iters_dir)
+    
     with open(f"{final_dir}/args.txt", 'w') as arg_file:
         arg_file.write(str(args))
         arg_file.close()
@@ -84,7 +84,7 @@ def _initiate(clip_model, preprocess, args):
     
     return mesh, nsf, (final_dir, iters_dir), (encoded_image, encoded_text, encoded_norm), crop_cur, crop_update
 
-def _construct_mask(vertices, mesh):
+def _construct_mask(vertices, mesh, file = True):
     """
     Constructs a mask for the mesh
 
@@ -93,11 +93,14 @@ def _construct_mask(vertices, mesh):
         :mesh: <Mesh> to be construct a mask for
     """
     voi = [] # verticies of interest
-    with open(vertices, "r") as vertices:
-        vertices = vertices.readlines()
-        for vertex in vertices:
-            try: voi.append(int(vertex))
-            except Exception: pass
+    if file: 
+        with open(vertices, "r") as vertices:
+            vertices = vertices.readlines()
+    
+    for vertex in vertices:
+        try: voi.append(int(vertex))
+        except Exception: pass
+
 
     print(f"{len(voi)} vertices will not be changed")
 
@@ -111,11 +114,13 @@ def _construct_mask(vertices, mesh):
 def __create_dir(dir_path):
     """Creates a dir, ensuring if the path exists we make an ith copy"""
     i = 0
-    while os.path.isdir(dir_path):
+    new_dir_path = f"{dir_path}_{i}"
+    while os.path.isdir(new_dir_path):
         i += 1
-        dir_path = f"{dir_path[:-1]}{i}"
-    os.mkdir(dir_path)
-    return dir_path
+        new_dir_path = f"{dir_path}_{i}"
+    os.mkdir(new_dir_path)
+    print(f"Saving to {new_dir_path} ...")
+    return new_dir_path
 
 def __constrain_randomness(args):
     """Constrains all sources of randomness"""

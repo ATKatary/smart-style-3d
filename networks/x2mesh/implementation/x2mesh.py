@@ -1,8 +1,11 @@
+import clip
 import argparse
-from .main import x2mesh
+from main import x2mesh
+from utils import device
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
+    clip_model, preprocess = clip.load('ViT-B/32', device, jit=False)
 
     ### render settings
     parser.add_argument('--n_views', type=int, default=5)
@@ -23,8 +26,8 @@ if __name__ == '__main__':
     parser.add_argument('--output_dir', type=str, default='round2/alpha5')
     parser.add_argument('--obj_path', type=str, default='meshes/mesh1.obj')
     parser.add_argument('--standardize', default=False, action='store_true')
+    parser.add_argument('--verticies_in_file', default=False, action="store_true")
     parser.add_argument('--vertices_to_not_change', type=str, default="vertices.txt")
-
 
 #     run_parser.add_argument('--prompt_list', nargs="+", default=None)
     parser.add_argument('--norm_prompt_list', nargs="+", default=None)
@@ -77,5 +80,5 @@ if __name__ == '__main__':
     parser.add_argument('--no_pe', dest='pe', default=True, action='store_false')
     
     args = parser.parse_args()
-    x2mesh(args)
+    x2mesh(args, clip_model, preprocess)
     

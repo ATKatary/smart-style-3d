@@ -1,9 +1,8 @@
 import os
 import torch.optim
 import torch.nn as nn
-from .utils import device
 import torch.nn.functional as F
-from .utils import FourierFeatureTransform
+from utils import device, FourierFeatureTransform
 
 
 class ProgressiveEncoding(nn.Module):
@@ -68,6 +67,9 @@ class NeuralStyleField(nn.Module):
         print(self.base)
         print(self.mlp_rgb)
         print(self.mlp_normal)
+
+        self.normals = self.mlp_normal
+        self.colors = self.mlp_rgb
 
     def reset_weights(self):
         self.mlp_rgb[-1].weight.data.zero_()

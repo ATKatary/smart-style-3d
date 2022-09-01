@@ -81,7 +81,7 @@ class Mesh(models.Model):
       :prompt: <str> the string to use for stylizing the mesh
     """
     print("Text2mesh Stylizing ...")
-    n_iter = 201
+    n_iter = 2001
     output_dir = f"{self.dir}/{self.id}_result"
     os.mkdir(output_dir)
 

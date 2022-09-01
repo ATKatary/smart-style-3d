@@ -1,5 +1,6 @@
 import torch
 import kaolin as kal
+from utils import device
 from torchvision import transforms
 
 ### Global Constants ###
@@ -80,7 +81,7 @@ def test(nsf, mesh, renderer, encodings, clip_model, optimizer, losses, norm_wei
         if args.n_normaugs > 0: 
             geo_transform = displaug_transform(args.norm_min_crop)
             norm_loss = __test(clip_model, georendered_images, encoded_norm, norm_loss, args.n_normaugs, geo_transform)
-            if encoded_image: loss = __test(clip_model, georendered_images, encoded_image, loss, args.n_normaugs, geo_transform)
+            if encoded_image is not None: loss = __test(clip_model, georendered_images, encoded_image, loss, args.n_normaugs, geo_transform)
 
         norm_loss.backward(retain_graph=True)
     optimizer.step()

@@ -54,7 +54,7 @@ class Stylize_OT_Op(Operator):
         print(f"Object:\t{context.scene.selected_mesh}")
         print(f"Selected:\t{len(selected_vertices)} vertices")
 
-        url = "http://0.0.0.0:8001/api/imad/upload"
+        url = "http://0.0.0.0:8000/api/imad/stylize"
         params = {'mesh': "mesh_data", 'status': "no-save", 'text2mesh': prompt, 'selected': selected_vertices, 'selected_mesh': selected_mesh}
 
         try:
