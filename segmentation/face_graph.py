@@ -1,3 +1,4 @@
+from importlib.util import module_for_loader
 import scipy
 import pymeshlab
 import numpy as np
@@ -21,10 +22,11 @@ class FaceGraph():
     Representation Exposure:
         - access granted to all attributes
     """
-    def __init__(self, mesh) -> None:
+    def __init__(self, mesh, model_loc) -> None:
         self.mesh = mesh
         self.faces = mesh.face_matrix()
         self.vertices = mesh.vertex_matrix()
+        self.model_loc = model_loc
 
         mesh_set = pymeshlab.MeshSet()
         mesh_set.add_mesh(pymeshlab.Mesh(mesh.vertex_matrix(), mesh.face_matrix()))
@@ -84,6 +86,7 @@ class FaceGraph():
         print(f"[sigma] >> {sigma}")
         np.exp(-matrix / (2 * (sigma ** 2)))
         np.fill_diagonal(matrix, 1)
+        np.save(f"{self.model_loc}/similarity_matrix.npy", matrix)
         return matrix
 
     ### Helper Methods ###

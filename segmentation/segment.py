@@ -1,10 +1,11 @@
+import os
 import cupy as cp
 import numpy as np
 import scipy.sparse.linalg
 from face_graph import FaceGraph
 from scipy.cluster.vq import kmeans2
 
-def segment_mesh(mesh, k = None):
+def segment_mesh(mesh,model_loc, k = None):
     """
     Segments a mesh as follows:
         1. Converts mesh into a face graph, where 
@@ -38,10 +39,15 @@ def segment_mesh(mesh, k = None):
         :returns: <np.ndarray> Labels of size m x 1; m = len(mesh.vertex_matrix) where Labels[i] = label of vertex i ∈ [1, k]
     """
     # Step 1
-    mesh_graph = FaceGraph(mesh)
+    mesh_graph = FaceGraph(mesh, model_loc)
 
     # Step 2
-    similarity_matrix = mesh_graph.similarity_matrix()
+    if(os.path.exists(f"{model_loc}/similarity_matrix.npy")):
+        print("Woohoo")
+        similarity_matrix = np.load(f"{model_loc}/similarity_matrix.npy")
+        print("Yayy using existing similarity matrix")
+    else:
+        similarity_matrix = mesh_graph.similarity_matrix()
 
     # Step 3
     sqrt_degree = np.sqrt(mesh_graph.degree_matrix)
