@@ -1,6 +1,6 @@
 import bpy
-
 from bpy.types import Panel
+from bpy.props import BoolProperty
 
 class SmartStyle3D_PT_Panel(Panel):
     """
@@ -28,20 +28,23 @@ class SmartStyle3D_PT_Panel(Panel):
 
         prompt_row = prompt_col.row()
         prompt_row.prop(context.scene, "prompt")
-
-        layout.separator()
-
-        layout.label(text="Base Segment")
-        base_segment_row = layout.row()
-        base_segment_col = base_segment_row.column()
-        base_segment_col.operator("object.base_segment_mesh", icon = "PLUGIN")
  
         layout.separator()
+        layout.label(text="Segment")
+        
+        layout.operator("mesh.segment_mesh", icon = "PLUGIN")
 
-        layout.label(text="Spectural Segment")
-        segment_row = layout.row()
-        segment_col = segment_row.column()
-        segment_col.operator("mesh.segment_mesh", icon = "PLUGIN")
+        if len(context.scene.segments) > 0:
+            for label in [""]:
+                layout.label(text=f"{label} Components", icon="TRIA_DOWN")
+                for i in range(len(context.scene.segments)):
+                    segment = context.scene.segments[i]
+                    # if segment.label == label.lower():
+                    segment_row = layout.row()
+                    segment_col = segment_row.column()
+                    segment_col.prop(segment, "selected", text=f"Part {i} - {segment.color}")
+
+            layout.operator("mesh.select_segment", icon = "CHECKMARK")
 
         layout.separator()
 

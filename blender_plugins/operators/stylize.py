@@ -8,7 +8,7 @@ from bpy.props import EnumProperty
 
 
 ### Global COnstants ###
-meshes = {"0": "vase", "1": "pencil_holder", "2": "lamp"}
+meshes = {"0": "vase", "1": "pencil_holder", "2": "lamp", "3": "can_holder", "4": "phone_holder", "5": "phone_holder_decimated"}
 report = lambda error: f"----------------------------\n{error}\n----------------------------\n"
 
 class Stylize_OT_Op(Operator):
@@ -54,8 +54,13 @@ class Stylize_OT_Op(Operator):
         print(f"Object:\t{context.scene.selected_mesh}")
         print(f"Selected:\t{len(selected_vertices)} vertices")
 
+        with open("/Users/king_ahmed1421/Desktop/selected_vertices.txt", "w") as verts:
+            verts.write(selected_vertices)
+
         url = "http://0.0.0.0:8000/api/imad/stylize"
-        params = {'mesh': "mesh_data", 'status': "no-save", 'text2mesh': prompt, 'selected': selected_vertices, 'selected_mesh': selected_mesh}
+        
+        if selected_mesh is not None: mesh_data = ""
+        params = {'mesh': mesh_data, 'status': "no-save", 'text2mesh': prompt, 'selected': selected_vertices, 'selected_mesh': selected_mesh}
 
         try:
             response = requests.get(url=url, params=params).json()
@@ -63,7 +68,7 @@ class Stylize_OT_Op(Operator):
             stylized_mesh = response['stylized_mesh']
             with open("./stylized_mesh.obj", "w") as script:
                 script.write(stylized_mesh)
-        
+
             bpy.ops.import_scene.obj(filepath="./stylized_mesh.obj")
 
         except Exception as error: print(f"Error occured while stylizing mesh\n{report(error)}")

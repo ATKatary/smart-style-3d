@@ -1,74 +1,28 @@
-bl_info = {
-    "name": "Mesh Segmentation",
-    "description": "Segments an object and applies an action on each segment",
-    "blender": (2, 80, 0),
-    "category": "Mesh"}
 
 import bpy
-from ..operators import actions
-from .segment_helpers import *
+import json
+import bmesh
+import requests 
+from .utils.actions import assign_materials
 
-# developing purpose for reloading modules if already imported
-import imp
-# imp.reload(segmentation)
-imp.reload(actions)
-
+### Global Constants ###
+meshes = {"0": "vase", "1": "pencil_holder", "2": "lamp", "3": "can_holder", "4": "phone_holder", "5": "phone_holder_decimated"}
+report = lambda error: f"----------------------------\n{error}\n----------------------------\n"
 
 class Segment_OT_Op(bpy.types.Operator):
     """ Segment a mesh """
 
     bl_idname = "mesh.segment_mesh"
     bl_label = "Segment mesh"
-    bl_options = {'REGISTER', 'UNDO'}
-
-    # parameters
-    action: bpy.props.EnumProperty(name ="Action",
-                                   items = [('assignMaterials',
-                                             "Assign materials",
-                                             "Assigns a different material for "
-                                             "each found segment")],
-                                   description = "What to do with the "
-                                                 "segmentation",
-                                   default = 'assignMaterials')
-    k: bpy.props.IntProperty(name = "Clusters",
-                             description = "Amount of clusters",
-                             min = 2,
-                             default = 2)
-    delta: bpy.props.FloatProperty(name = "Delta",
-                                   description = "Set close to zero for more "
-                                                 "importance on the angular "
-                                                 "distance, set close to one "
-                                                 "for more importance on the "
-                                                 "geodesic distance.",
-                                   default = 0.03,
-                                   min = 0,
-                                   max = 1,
-                                   subtype = 'FACTOR')
-    eta: bpy.props.FloatProperty(name = "Weight of convexity",
-                                 description = "Set close to zero for more "
-                                               "importance on concave angles, "
-                                               "set close to one to treat "
-                                               "concave and convex angles "
-                                               "equally.",
-                                 default = 0.15,
-                                 min = 1e-10,
-                                 max = 1,
-                                 subtype = 'FACTOR')
-    ev_method: bpy.props.EnumProperty(name = "EV method",
-        items = [('sparse', "Sparse", "Sparse method for eigenvector "
-                                      "computation (scipy.sparse.linalg.eigsh)"),
-                 ('dense', "Dense", "Dense method for eigenvector computation "
-                                    "(scipy.linalg.eigh)")],
-        description = "Method to use for eigenvector computation. 'Sparse' "
-                      "should usually preferred, as it tends to be much faster "
-                      "without sacrificing quality. 'Dense' can be tried as "
-                      "fallback. Default",
-        default = 'sparse')
-    kmeans_init: bpy.props.EnumProperty(name = "k-means initialization",
-        items = [('liu_zhang', "Liu & Zhang", "Initialization by Liu & Zhang"),
-                 ('kmeans++', "k-means++", "Initialization from k-means++")],
-        description = "Method to use for initializing centroids for k-means.",
-        default = 'liu_zhang')
+    
+    @classmethod
+    def poll(cls, context):
+        """ Indicates weather the operator should be enabled """
+        obj = context.object
+        if obj is not None:
+            return True
+        print("Failed to get model because no object is selected")
+        return False
 
     def execute(self, context):
         """Executes the segmentation"""
@@ -77,17 +31,35 @@ class Segment_OT_Op(bpy.types.Operator):
                                    "one of them for segmentation!")
             return {'CANCELLED'}
         else:
-            segment_mesh(mesh = context.active_object.data,
-                                      k = self.k,
-                                      coefficients = (self.delta, self.eta),
-                                      action = getattr(actions, self.action),
-                                      ev_method = self.ev_method,
-                                      kmeans_init = self.kmeans_init)
-            return {'FINISHED'}
+            obj = context.view_layer.objects.active
+            selected_mesh = context.scene.selected_mesh
+            selected_mesh = meshes[selected_mesh]
+            
+            mesh_data = ""
+            for vertex in obj.data.vertices:
+                mesh_data += "v %.4f %.4f %.4f\n" % vertex.co[:]
+                mesh_data += "vn %.4f %.4f %.4f\n" % vertex.normal[:]
 
-    def invoke(self, context, event):
-        if context.active_object.type == 'MESH':
-            return context.window_manager.invoke_props_dialog(self)
-        else:
-            self.report({'ERROR'}, "Selected object is not a mesh!")
-            return {'CANCELLED'}
+            for face in obj.data.polygons:
+                mesh_data += "f"
+                for vertex in face.vertices:
+                    mesh_data += f" {vertex + 1}"  
+                mesh_data += "\n"
+
+            url = "http://0.0.0.0:8000/api/imad/segment"
+            
+            data = {'mesh': "mesh_data", 'selected_mesh': selected_mesh, 'mode': "spectural"}
+
+            try:
+                response = requests.get(url=url, params=data).json()
+                faces = response['faces']
+                labels = response['labels']
+                print(f"[labels] >> {labels}")
+
+                self.report({'INFO'}, f"Segmented mesh into 6 parts successfully!")
+                print(f"[context] >> {context}")
+                assign_materials(obj, 12, faces, context, labels)
+
+            except Exception as error: raise error; print(f"Error occured while segmenting mesh\n{report(error)}")
+            
+            return {'FINISHED'}

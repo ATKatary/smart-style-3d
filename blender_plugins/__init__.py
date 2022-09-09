@@ -23,14 +23,21 @@ bl_info = {
 }
 
 import bpy 
-from .operators.base import Base_OT_Op
 from .operators.mesh import Insert_OT_Op
 from .operators.stylize import Stylize_OT_Op
 from .operators.segment import Segment_OT_Op
-from .panels.stylize import SmartStyle3D_PT_Panel
-from bpy.props import StringProperty, EnumProperty
+from .panels.panel import SmartStyle3D_PT_Panel
+from .operators.utils.select_segment import SelectSegment_OT_Op
+from bpy.props import StringProperty, EnumProperty, CollectionProperty, BoolProperty, IntProperty
 
-classes = (Stylize_OT_Op, Insert_OT_Op, SmartStyle3D_PT_Panel, Base_OT_Op, Segment_OT_Op)
+class CustomPropertiesGroup(bpy.types.PropertyGroup):
+    i: IntProperty()
+    label: StringProperty()
+    faces: StringProperty()
+    color: StringProperty()
+    selected: BoolProperty(default = False)
+
+classes = (Stylize_OT_Op, Insert_OT_Op, SmartStyle3D_PT_Panel, Segment_OT_Op, CustomPropertiesGroup, SelectSegment_OT_Op)
 props = {
     'prompt': StringProperty(
         name = "", 
@@ -42,8 +49,15 @@ props = {
         items = [
             ('0', "Vase", "Add a vase to the scene"),
             ('1', "Cup Holder", "Add a cup holder to the scene"),
-            ('2', "Lamp", "Add a lamp to the scene") 
+            ('2', "Lamp", "Add a lamp to the scene"),
+            ('3', "Can Holder", "Add a can holder to the scene"),
+            ('4', "Phone Holder", "Add a phone holder to the scene"),
+            ('5', "Phone Holder Decimated", "Add a decimated phone holder to the scene (for performance purposes)")  
         ]
+    ),
+
+    'segments': CollectionProperty(
+        type = CustomPropertiesGroup
     )
 }
 
