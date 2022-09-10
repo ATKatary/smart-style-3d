@@ -8,7 +8,8 @@ from bpy.props import EnumProperty
 
 
 ### Global COnstants ###
-meshes = {"0": "vase", "1": "pencil_holder", "2": "lamp", "3": "can_holder", "4": "phone_holder", "5": "phone_holder_decimated"}
+meshes = {"0": "vase", "1": "pencil_holder", "2": "lamp", "3": "can_holder", "4": "phone_holder", "5": "phone_holder_decimated", "6": "wrist_thing", "7": "ring"}
+scaling_factors = {"0": "1", "1": "50", "2": "1", "3": "25", "4": "50", "5": "50", "6": "60", "7": "1"}
 report = lambda error: f"----------------------------\n{error}\n----------------------------\n"
 
 class Stylize_OT_Op(Operator):
@@ -23,6 +24,7 @@ class Stylize_OT_Op(Operator):
     def poll(cls, context):
         """ Indicates weather the operator should be enabled """
         obj = context.object
+        
         if obj is not None and obj.mode == "EDIT":
             return True
         print("Failed to get selected vertices because object is not in edit mode")
@@ -34,33 +36,38 @@ class Stylize_OT_Op(Operator):
         obj = context.view_layer.objects.active
         
         mesh_data = ""
-        selected_vertices = ""
-        mesh = bmesh.from_edit_mesh(obj.data)
-        selected_mesh = context.scene.selected_mesh
-        selected_mesh = meshes[selected_mesh]
-    
-        for vertex in mesh.verts:
-            if vertex.select == True: selected_vertices += f"{vertex.index}\n"
-            mesh_data += "v %.4f %.4f %.4f\n" % vertex.co[:]
-            mesh_data += "vn %.4f %.4f %.4f\n" % vertex.normal[:]
+        selected_segments = []
+        # mesh = bmesh.from_edit_mesh(obj.data)
+        i = context.scene.selected_mesh
+        selected_mesh = meshes[i]
 
-        for face in obj.data.polygons:
-            mesh_data += "f"
-            for vertex in face.vertices:
-                mesh_data += f" {vertex + 1}"  
-            mesh_data += "\n"
+        for segment in context.scene.segments:
+            if not segment.selected: continue
+            selected_segments.append(segment.i)
+        selected_segments = " ".join(str(i) for i in selected_segments)
+        # for vertex in mesh.verts:
+        #     if vertex.select == True: selected_vertices += f"{vertex.index}\n"
+        #     mesh_data += "v %.4f %.4f %.4f\n" % vertex.co[:]
+        #     mesh_data += "vn %.4f %.4f %.4f\n" % vertex.normal[:]
+
+        # for face in obj.data.polygons:
+        #     mesh_data += "f"
+        #     for vertex in face.vertices:
+        #         mesh_data += f" {vertex + 1}"  
+        #     mesh_data += "\n"
+
         
         print(f"Prompt:\t{prompt}")
         print(f"Object:\t{context.scene.selected_mesh}")
-        print(f"Selected:\t{len(selected_vertices)} vertices")
+        print(f"Selected:\t{len(selected_segments)} segments")
 
-        with open("/Users/king_ahmed1421/Desktop/selected_vertices.txt", "w") as verts:
-            verts.write(selected_vertices)
+        with open("/Users/king_ahmed1421/Desktop/selected_segments.txt", "w") as verts:
+            verts.write(selected_segments)
 
         url = "http://0.0.0.0:8000/api/imad/stylize"
         
         if selected_mesh is not None: mesh_data = ""
-        params = {'mesh': mesh_data, 'status': "no-save", 'text2mesh': prompt, 'selected': selected_vertices, 'selected_mesh': selected_mesh}
+        params = {'mesh': mesh_data, 'status': "no-save", 'text2mesh': prompt, 'selected': selected_segments, 'selected_mesh': selected_mesh, 'scaling_factor': scaling_factors[i]}
 
         try:
             response = requests.get(url=url, params=params).json()

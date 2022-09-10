@@ -35,14 +35,14 @@ class SmartStyle3D_PT_Panel(Panel):
         layout.operator("mesh.segment_mesh", icon = "PLUGIN")
 
         if len(context.scene.segments) > 0:
-            for label in [""]:
+            for label in ["Function", "Form"]:
                 layout.label(text=f"{label} Components", icon="TRIA_DOWN")
                 for i in range(len(context.scene.segments)):
                     segment = context.scene.segments[i]
-                    # if segment.label == label.lower():
-                    segment_row = layout.row()
-                    segment_col = segment_row.column()
-                    segment_col.prop(segment, "selected", text=f"Part {i} - {segment.color}")
+                    if segment.label == label.lower():
+                        segment_row = layout.row()
+                        segment_col = segment_row.column()
+                        segment_col.prop(segment, "selected", text=f"Part {i} - {segment.color}")
 
             layout.operator("mesh.select_segment", icon = "CHECKMARK")
 
