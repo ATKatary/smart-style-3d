@@ -1,7 +1,8 @@
-from importlib.util import module_for_loader
+from secrets import choice
 import scipy
 import pymeshlab
 import numpy as np
+from time import time
 from tqdm import tqdm
 
 ### Global Constants ###
@@ -32,9 +33,10 @@ class FaceGraph():
         mesh_set.add_mesh(pymeshlab.Mesh(mesh.vertex_matrix(), mesh.face_matrix()))
         mesh_set.compute_normal_per_face()
 
+        self.face_objs = []
         self.face_normals = mesh_set.current_mesh().face_normal_matrix()
         self.m = self.faces.shape[0]
-        
+
         print("----- Computing face adj ... ------")
         self.edge_to_faces = {}
         for i in tqdm(range(self.m)):
@@ -42,15 +44,17 @@ class FaceGraph():
             edge_1 = Edge(v1, v2)
             edge_2 = Edge(v2, v3)
             edge_3 = Edge(v1, v3)
-
+            
             for edge in (edge_1, edge_2, edge_3):
                 try: self.edge_to_faces[edge].append(i)
                 except: self.edge_to_faces[edge] = [i]
 
-        print("------ Computing avg_geodisc and avg_ang_dist ... ------")
+        print("------ Computing avg_geodisc and avg_ang_dist matrix + face_objs graph ... ------")
         n = 0
         self.geodisc = np.zeros((self.m, self.m))
         self.ang_dist = np.zeros((self.m, self.m))
+        self.face_objs = [Face(i, [[self.vertices[j] for j in self.faces[i]]]) for i in range(self.m)]
+
         for edge, [i, j] in tqdm(self.edge_to_faces.items()):
             ang_dist = self.__ang_dist(i, j)
             geodisc = self.__geodisc(_coords(self.vertices, self.faces[i]), _coords(self.vertices, self.faces[j]), edge)
@@ -61,6 +65,11 @@ class FaceGraph():
             self.ang_dist[j, i] = ang_dist
             n += 2
 
+            # Updating graph representation
+            self.face_objs[i].add_adj_face(self.face_objs[j])
+            self.face_objs[j].add_adj_face(self.face_objs[i])
+
+        self.graph = self.face_objs[0]
         self.avg_geodisc = self.geodisc.sum() / n
         self.avg_ang_dist = self.ang_dist.sum() / n
 
@@ -68,15 +77,18 @@ class FaceGraph():
         print(f"[avg_ang_dist] >> {self.avg_ang_dist}")
 
         self.__construct_adj_matrix()
-
         self.degree_matrix = np.zeros((self.m, self.m))
         self.__construct_degree_matrix()
-    
-    def similarity_matrix(self):
+
+    def similarity_matrix(self, k = 1):
         """
-        Computes the similairty matrix of the graph
+        Computes the similairty matrix of the graph which is of size m // k x m // k
+        Inputs
+            :k: <int> condensation factor
         """
         print("------ Computing similarity matrix ... ------")
+        # Convert matrix to linked list graph and use parent/child relationship in order to collapse graph by factor of k
+        
         matrix = scipy.sparse.csgraph.dijkstra(self.adj_matrix)
         # matrix[matrix == np.nan] = 0
         inf_indices = np.where(np.isinf(matrix))
@@ -142,9 +154,94 @@ class Edge():
     def __str__(self) -> str:
         return f"{self.v1} ---- {self.v2}"
 
+class Face():
+    def __init__(self, i, vertices) -> None:
+        self.i = i
+        self.faces = []
+        self.adj_faces = []
+        self.vertices = vertices
+    
+    def add_adj_face(self, face):
+        """ Requires every face has at most 2 adjacent faces """
+        # print(f"Adding {face} to {self}")
+        if face in self.adj_faces: return
+        if len(self.adj_faces) == 3: raise ValueError("Adjacent faces should not be > 2")
+        self.adj_faces.append(face)
+        # print(f"{face} added to {self}, size of adjacent faces is now {len(self.adj_faces)}")
+
+    def collapse(self, k: int = 0, seen = []):
+        """ Collapses face unto its children, k = log(n) where n is the number of collopsed elements """
+        if self in seen: return self
+        seen.append(self) 
+
+        if k == 0: return self
+        collapsed_face = Face(self.i, [self.vertices])
+
+        if k == 1:
+            self.adj_faces = []
+            for child in self.adj_faces:
+                if child in seen: continue
+                collapsed_face.merge(child)
+                collapsed_face.add_adj_face(child)
+        
+        collapsed_childern = []
+        for child in collapsed_face.adj_faces:
+            if child in seen: continue
+            collapsed_child = child.collapse(k)
+            collapsed_childern.append(collapsed_child)
+
+        collapsed_face.adj_faces = collapsed_childern
+        return collapsed_face
+    
+    def merge(self, face):
+        """ Merges two faces to become one """
+        self.i += face.i
+        self.vertices += face.vertics
+
+    def __iter__(self):
+        for v in self.vertices: yield v
+    
+    def __len__(self, seen = set()):
+        size = 0
+        print(len())
+        for child in self.adj_faces:
+            if child in seen: continue
+            size += child.__len__(seen)
+        return size + 1
+
+    def __str__(self) -> str:
+        return f"Face {self.i}"
+
 ### Helper Functions ###
 def _interesct(A, B) -> int:
     """ Determines if A ∩ B != Ø, 0 -> False, 1 -> True """
     for elm in A:
         if elm in B: return 1
     return 0
+
+# if __name__ == "__main__":
+#     start_time = time()
+#     adj_matrix = {
+#         0: [1, 2],
+#         1: [3, 4, 0],
+#         2: [5, 6, 0],
+#         3: [1],
+#         4: [1],
+#         5: [2],
+#         6: [2]
+#     }
+
+#     faces = [Face(i, [[]]) for i in adj_matrix]
+#     for i, adj in adj_matrix.items():
+#         for j in adj:
+#             faces[i].add_adj_face(faces[j])
+#             faces[j].add_adj_face(faces[i])
+    
+#     graph = faces[0]
+#     collapsed_graph = graph.collapse(k = 1)
+#     print(f"----- Finished collapsing graph in {time() - start_time} -----")
+#     print(f"[Original graph size] >> {len(graph)}")
+#     print(f"[Collapsed graph size] >> {len(collapsed_graph)}")
+    
+
+

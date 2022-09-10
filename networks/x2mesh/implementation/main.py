@@ -13,7 +13,7 @@ from helpers.report_helpers import (
     _export_final,
     _export_iters
 )
-from test import test
+from test import test, _require_grad
 
 torch.autograd.set_detect_anomaly(True)
 ### Functions ###
@@ -53,8 +53,8 @@ def x2mesh(args, clip_model, preprocess):
     for i in tqdm(range(args.n_iter)):
         optimizer.zero_grad()
         _update_mesh(nsf, mesh, network_input, vertex_mask, vertices)
-        rendered_images, _, _ = test(nsf, mesh, renderer, encodings, clip_model, optimizer, (loss, norm_loss), norm_weight, crop_update, args, i)
-        
+        rendered_images, loss_, norm_loss_ = test(nsf, mesh, renderer, encodings, clip_model, optimizer, (loss, norm_loss), norm_weight, crop_update, args, i)
+
         if activate_scheduler: lr_scheduler.step()
         if args.decay_freq is not None and i % args.decay_freq == 0: norm_weight *= args.crop_decay
 

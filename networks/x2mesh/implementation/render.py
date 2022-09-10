@@ -49,11 +49,11 @@ class Renderer():
         
         if elev is None:
             # elev = torch.linspace(0, np.pi / 2, n_views + 1)[:-1]
-            elev = torch.cat((torch.tensor([0]), torch.randn(n_views - 1) * np.pi / 4))
+            elev = torch.cat((torch.tensor([0]), torch.randn(n_views - 1) * np.pi / 8))
 
         if azim is None:
             # azim = torch.linspace(0, np.pi, n_views + 1)[:-1]
-            azim = torch.cat((torch.tensor([0]), torch.randn(n_views - 1) * np.pi / 2))
+            azim = torch.cat((torch.tensor([0]), torch.randn(n_views - 1) * np.pi / 4))
 
         camera_direction = torch.zeros((n_views, 3))
         for i in range(n_views): camera_direction[i, :] = torch.tensor([0.0, 1.0, 0.0])

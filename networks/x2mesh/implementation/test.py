@@ -2,6 +2,7 @@ import torch
 import kaolin as kal
 from utils import device
 from torchvision import transforms
+from torchvision.utils import save_image
 
 ### Global Constants ###
 norm_1 = (0.48145466, 0.4578275, 0.40821073)
@@ -33,7 +34,9 @@ def test(nsf, mesh, renderer, encodings, clip_model, optimizer, losses, norm_wei
         :i: <dict> testing iteration 
     """
     loss, norm_loss = losses
-    rendered_images, elev, azim = renderer(args.n_views)
+    rendered_images, _, _ = renderer(args.n_views)
+    save_image(rendered_images, "re.jpg")
+
     encoded_text, encoded_image, encoded_norm = encodings
     if encoded_text is not None: encoded_input = encoded_text
     elif encoded_image is not None: encoded_input = encoded_image
@@ -76,7 +79,7 @@ def test(nsf, mesh, renderer, encodings, clip_model, optimizer, losses, norm_wei
     if args.geoloss:
         default_color = _create_color(len(mesh.vertices), [0.5]*3)
         mesh.face_attributes = kal.ops.mesh.index_vertices_by_faces(default_color.unsqueeze(0), mesh.faces)
-        georendered_images, elev, azim = renderer(args.n_views)
+        georendered_images, _, _ = renderer(args.n_views)
 
         if args.n_normaugs > 0: 
             geo_transform = displaug_transform(args.norm_min_crop)
@@ -87,7 +90,7 @@ def test(nsf, mesh, renderer, encodings, clip_model, optimizer, losses, norm_wei
     optimizer.step()
 
     for layer in [nsf.normals, nsf.colors]: _require_grad(layer, True)
-
+    # print(f"[loss] >> {loss}\n[norm_loss] >> {norm_loss}")
     return rendered_images, loss, norm_loss
 
 ### Helper Functions ###

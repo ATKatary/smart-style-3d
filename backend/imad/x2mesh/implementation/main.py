@@ -56,7 +56,7 @@ def x2mesh(args, clip_model, preprocess):
         rendered_images, _, _ = test(nsf, mesh, renderer, encodings, clip_model, optimizer, (loss, norm_loss), norm_weight, crop_update, args, i)
         
         if activate_scheduler: lr_scheduler.step()
-        if args['decay_freq'] is not None and i % args['decay_freq'] == 0: norm_weight *= args[crop_decay]
+        if args['decay_freq'] is not None and i % args['decay_freq'] == 0: norm_weight *= args['crop_decay']
 
         if i % 100 == 0: _report(mesh, args['n_views'], results_path, losses, i)
     _report(mesh, args['n_views'], results_path, losses, i)

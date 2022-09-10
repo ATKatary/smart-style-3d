@@ -5,7 +5,7 @@ import scipy.sparse.linalg
 from face_graph import FaceGraph
 from scipy.cluster.vq import kmeans2
 
-def segment_mesh(mesh,model_loc, k = None):
+def segment_mesh(mesh, model_loc, k = None):
     """
     Segments a mesh as follows:
         1. Converts mesh into a face graph, where 
@@ -43,9 +43,7 @@ def segment_mesh(mesh,model_loc, k = None):
 
     # Step 2
     if(os.path.exists(f"{model_loc}/similarity_matrix.npy")):
-        print("Woohoo")
         similarity_matrix = np.load(f"{model_loc}/similarity_matrix.npy")
-        print("Yayy using existing similarity matrix")
     else:
         similarity_matrix = mesh_graph.similarity_matrix()
 
@@ -59,5 +57,10 @@ def segment_mesh(mesh,model_loc, k = None):
 
     # Step 5
     _, labels = kmeans2(eigen_vectors, k, minit="++", iter=50)
-    
+    vectors_labels = {}
+    vectors_labels['vectors'] = eigen_vectors
+    vectors_labels['values'] = eigen_values
+    vectors_labels['labels']  = labels
+    np.savez(f"{model_loc}/vectors_labels.npz",vectors_labels )
+    print(f"Written labels and vectors to:{model_loc}/vectors_labels.npz")
     return labels

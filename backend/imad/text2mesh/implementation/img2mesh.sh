@@ -1,0 +1,2 @@
+python implementation/utils.py --mesh_path $1 --text2mesh_path $5
+python text2mesh/main.py --run branch --obj_path $1 --output_dir $2 --image $3 --cropforward --no_prompt --sigma $7  --clamp tanh --n_normaugs 0 --n_augs ${10} --normmincrop 0.1 --splitnormloss --normmaxcrop 0.1 --lr_plateau --colordepth 2 --normdepth 2 --frontview --frontview_std 8 --clipavg view --lr_decay $8 --clamp tanh --normclamp tanh  --maxcrop 1.0 --save_render --n_iter $4 --learning_rate $9 --normal_learning_rate 0.0005 --standardize --symmetry --background 1 1 1

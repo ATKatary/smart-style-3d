@@ -19,7 +19,7 @@ args = {
     'obj_path': "meshes/mesh1.obj",
     'standardize': True,
     'verticies_in_file': True,
-    'vertices_to_not_change': "vertices.txt",
+    'selected_vertices': "vertices.txt",
 
     'norm_prompt_list': None,
     'train_type': "shared",
