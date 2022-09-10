@@ -3,6 +3,7 @@ import bpy
 import json
 import bmesh
 import requests 
+from pathlib import Path
 from bpy.types import Operator
 from bpy.props import EnumProperty
 
@@ -61,7 +62,7 @@ class Stylize_OT_Op(Operator):
         print(f"Object:\t{context.scene.selected_mesh}")
         print(f"Selected:\t{len(selected_segments)} segments")
 
-        with open("/Users/king_ahmed1421/Desktop/selected_segments.txt", "w") as verts:
+        with open(f"{Path(__file__).parent.absolute()}/selected_segments.txt", "w") as verts:
             verts.write(selected_segments)
 
         url = "http://0.0.0.0:8000/api/imad/stylize"
