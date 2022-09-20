@@ -41,5 +41,5 @@ def assign_materials(mesh, k, faces, context, labels):
         segment.selected = True if segment.label == "function" else False
 
     for i, label in enumerate(faces):
-        mesh.data.polygons[i].material_index = label
+        mesh.data.polygons[i].material_index = int(label)
     

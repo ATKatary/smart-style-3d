@@ -35,16 +35,16 @@ class Segment_OT_Op(bpy.types.Operator):
             selected_mesh = context.scene.selected_mesh
             selected_mesh = meshes[selected_mesh]
             
-            mesh_data = ""
-            for vertex in obj.data.vertices:
-                mesh_data += "v %.4f %.4f %.4f\n" % vertex.co[:]
-                mesh_data += "vn %.4f %.4f %.4f\n" % vertex.normal[:]
+            # mesh_data = ""
+            # for vertex in obj.data.vertices:
+            #     mesh_data += "v %.4f %.4f %.4f\n" % vertex.co[:]
+            #     mesh_data += "vn %.4f %.4f %.4f\n" % vertex.normal[:]
 
-            for face in obj.data.polygons:
-                mesh_data += "f"
-                for vertex in face.vertices:
-                    mesh_data += f" {vertex + 1}"  
-                mesh_data += "\n"
+            # for face in obj.data.polygons:
+            #     mesh_data += "f"
+            #     for vertex in face.vertices:
+            #         mesh_data += f" {vertex + 1}"  
+            #     mesh_data += "\n"
 
             url = "http://0.0.0.0:8000/api/imad/segment"
             
@@ -52,14 +52,21 @@ class Segment_OT_Op(bpy.types.Operator):
 
             try:
                 response = requests.get(url=url, params=data).json()
-                faces = response['faces']
-                labels = response['labels']
-                print(f"[labels] >> {labels}")
+                # faces = response['faces']
+                labels = ["function", "function", "form", "function", "function", "form", "function", "form", "form", "function", "form", "function"]
 
-                self.report({'INFO'}, f"Segmented mesh into 6 parts successfully!")
+                # labels = response['labels']
+                with open("./speedup.json") as labels_file:
+                    faces = json.loads(labels_file.read())
+                # k = response['k']
+                k = 12
+                # print(f"[labels] >> {labels}")
+
+
+                self.report({'INFO'}, f"Segmented mesh into {k} parts successfully!")
                 print(f"[context] >> {context}")
-                assign_materials(obj, 12, faces, context, labels)
+                assign_materials(obj, k, faces, context, labels)
 
-            except Exception as error: print(f"Error occured while segmenting mesh\n{report(error)}")
+            except Exception as error: raise error; print(f"Error occured while segmenting mesh\n{report(error)}")
             
             return {'FINISHED'}
