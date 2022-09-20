@@ -6,7 +6,8 @@ import requests
 from .utils.actions import assign_materials
 
 ### Global Constants ###
-meshes = {"0": "vase", "1": "pencil_holder", "2": "lamp", "3": "can_holder", "4": "phone_holder", "5": "phone_holder_decimated", "6": "wrist_thing", "7": "ring"}
+# meshes = {"0": "vase", "1": "pencil_holder", "2": "lamp", "3": "can_holder", "4": "phone_holder", "5": "phone_holder_decimated", "6": "wrist_thing", "7": "ring"}
+meshes = {"0": "vase", "1":'battery_dispenser', '2':'bulbasaur', '3':'cutlery_dispenser','4':'headphone_stand', '5':'occarina', "6": "wrist_thing", "7":"Airpods_cover.obj"}
 report = lambda error: f"----------------------------\n{error}\n----------------------------\n"
 
 class Segment_OT_Op(bpy.types.Operator):

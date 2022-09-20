@@ -8,7 +8,8 @@ from bpy.types import Operator
 from bpy.props import EnumProperty
 
 ### Global Constants ###
-meshes = {"0": "vase.obj", "1": "pencil_holder.obj", "2": "lamp.obj", "3": "can_holder.obj", "4": "phone_holder.obj", "5": "phone_holder_decimated.obj", "6": "wrist_thing.obj", "7": "ring.obj"}
+# meshes = {"0": "vase.obj", "1": "pencil_holder.obj", "2": "lamp.obj", "3": "can_holder.obj", "4": "phone_holder.obj", "5": "phone_holder_decimated.obj", "6": "wrist_thing.obj", "7": "ring.obj"}
+meshes = {"0": "vase.obj", "1":'battery_dispenser.obj', '2':'bulbasaur.obj', '3':'cutlery_dispenser.obj','4':'headphone_stand.obj', '5':'occarina.obj',"6": "wrist_thing.obj","7":"Airpods_cover.obj"}
 models_dir = f"{Path(__file__).parent.absolute()}/models"
 
 class Insert_OT_Op(Operator):

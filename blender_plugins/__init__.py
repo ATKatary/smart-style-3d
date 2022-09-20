@@ -41,20 +41,27 @@ classes = (Stylize_OT_Op, Insert_OT_Op, SmartStyle3D_PT_Panel, Segment_OT_Op, Cu
 props = {
     'prompt': StringProperty(
         name = "", 
-        default = 'A vase made of wood'
+        default = 'A vase made of terracotta'
     ),
 
     'selected_mesh': EnumProperty(
         name = "",
         items = [
             ('0', "Vase", "Add a vase to the scene"),
-            ('1', "Pencil Holder", "Add a cup holder to the scene"),
-            ('2', "Lamp", "Add a lamp to the scene"),
-            ('3', "Can Holder", "Add a can holder to the scene"),
-            ('4', "Phone Holder", "Add a phone holder to the scene"),
-            ('5', "Phone Holder Decimated", "Add a decimated phone holder to the scene (for performance purposes)"),
-            ('6', 'Wrist Thing', "A wrist thing for broken wrists"),
-            ('7', 'Ring', "The ring of your dreams")
+            ('1','Battery Dispenser', 'Add a battery dispenser to the scene'),
+            ('2', 'Bulbasaur', 'Add a bulbasaur to the scene'),
+            ('3', 'Cutlery Dispenser', 'Add a cutlery dispenser to the scene'),
+            ('4', 'Headphone Stand', 'Add a headphone stand'),
+            ('5', 'Ocarina', 'Add an occarina to the scene'),
+            ('6', 'Thumb Split', "Add a thumb splint to the scene "),
+             ('7', 'Airpods Cover', "A cover for Airpods")
+            # ('1', "Pencil Holder", "Add a cup holder to the scene"),
+            # ('2', "Lamp", "Add a lamp to the scene"),
+            # ('3', "Can Holder", "Add a can holder to the scene"),
+            # ('4', "Phone Holder", "Add a phone holder to the scene"),
+            # ('5', "Phone Holder Decimated", "Add a decimated phone holder to the scene (for performance purposes)"),
+            # ('6', 'Wrist Thing', "A wrist thing for broken wrists"),
+            # ('7', 'Ring', "The ring of your dreams")
         ]
     ),
 
